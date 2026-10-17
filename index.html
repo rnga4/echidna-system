@@ -938,6 +938,16 @@ button:focus-visible, .item:focus-visible, .btn:focus-visible, .ib:focus-visible
 }
 .tab.on .tab-ico { background: var(--sel); }
 
+/* Desktop: bottom nav hidden; navigate via sidebar actions + view back buttons */
+#sideActions { display: none; }
+.view-back { display: none; }
+@media (min-width: 769px) {
+  #tabbar { display: none; }
+  #sideActions { display: flex; }
+  .view-back { display: grid; }
+  .view-head { gap: 12px; }
+}
+
 /* ===== Tab / View Transitions ===== */
 .view.enter, #chatview.enter { animation: tabSlideIn 0.22s var(--ease); }
 .view.enter .view-body > * {
@@ -1307,6 +1317,14 @@ button:focus-visible, .item:focus-visible, .btn:focus-visible, .ib:focus-visible
           <span class="sub" id="who"></span>
           <span class="status-pill is-zero" id="sonline" title="Pengguna online di jaringan lokal"><span class="status-dot"></span><span class="status-txt">0 online</span></span>
         </h1>
+        <div class="hgrp" id="sideActions">
+          <button class="ib" id="openSettings" type="button" aria-label="Pengaturan" title="Pengaturan">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+          <button class="ib" id="openProfileBtn" type="button" aria-label="Profil" title="Profil">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </button>
+        </div>
       </div>
       <div id="search-wrap">
         <svg class="search-ico" viewBox="0 0 24 24" width="16" height="16"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -1404,7 +1422,10 @@ button:focus-visible, .item:focus-visible, .btn:focus-visible, .ib:focus-visible
   </div>
 
   <section id="viewSettings" class="view" hidden aria-label="Pengaturan">
-    <header class="view-head"><h2>Pengaturan</h2></header>
+    <header class="view-head">
+      <button class="ib view-back" type="button" aria-label="Kembali ke obrolan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg></button>
+      <h2>Pengaturan</h2>
+    </header>
     <div class="view-body">
       <div class="set-group">
         <label class="albl">Tampilan</label>
@@ -1452,7 +1473,10 @@ button:focus-visible, .item:focus-visible, .btn:focus-visible, .ib:focus-visible
   </section>
 
   <section id="viewProfile" class="view" hidden aria-label="Profil">
-    <header class="view-head"><h2>Profil</h2></header>
+    <header class="view-head">
+      <button class="ib view-back" type="button" aria-label="Kembali ke obrolan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg></button>
+      <h2>Profil</h2>
+    </header>
     <div class="view-body">
       <div class="prof-hero">
         <div class="prof-av-wrap" id="profAvWrap" title="Klik untuk mengganti foto profil">
@@ -2283,6 +2307,10 @@ function setTab(t) {
   if (t === 'chat') layout();
 }
 $$('#tabbar .tab').forEach(b => { b.onclick = () => { buzz(HAPTIC.tap); setTab(b.dataset.tab); }; });
+
+$('#openSettings').onclick = () => { buzz(HAPTIC.tap); setTab('settings'); };
+$('#openProfileBtn').onclick = () => { buzz(HAPTIC.tap); setTab('profile'); };
+$$('.view-back').forEach(b => { b.onclick = () => { buzz(HAPTIC.tap); setTab('chat'); }; });
 
 $('#setTheme').onclick = () => { buzz(HAPTIC.tap); theme(root.dataset.theme === 'dark' ? 'light' : 'dark'); refreshSettings(); };
 
