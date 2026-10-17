@@ -3,7 +3,7 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY package.json ./
 RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
-COPY server.js index.html ./
+COPY server.js index.html manifest.json sw.js icon.svg ./
 RUN mkdir -p /data && chown node:node /data
 USER node
 EXPOSE 3000

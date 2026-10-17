@@ -8,511 +8,3397 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Echidna System</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="apple-touch-icon" href="/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 const root=document.documentElement;
-function theme(t){root.dataset.theme=t;try{localStorage.theme=t}catch{}document.querySelector('meta[name=theme-color]').content=t==='dark'?'#15181d':'#ffffff';try{syncSonnerTheme()}catch{}}
+function theme(t){root.dataset.theme=t;try{localStorage.theme=t}catch{}const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0c1017':'#f5f4f0';}
 theme((()=>{try{return localStorage.theme}catch{}})()||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
 </script>
 <style>
-:root{color-scheme:light;--bg:#f3f4f6;--panel:#fff;--line:#eceef2;--text:#14161a;--mute:#8a909a;--acc:#3b5bdb;--acc-t:#fff;--in:#fff;--hover:#f5f6f9;--sel:#eceffd;--chat:#eef0f4;--on:#2fb36d;--ease:cubic-bezier(.2,.8,.2,1)}
-:root[data-theme=dark]{color-scheme:dark;--bg:#0d0f12;--panel:#15181d;--line:#22262d;--text:#e9ebef;--mute:#7b818c;--acc:#7b93ff;--acc-t:#0a0d14;--in:#1e222a;--hover:#1a1e25;--sel:#1f2640;--chat:#101317}
-*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
-[hidden]{display:none!important}
-html,body{height:100%;overflow:hidden;overflow-x:hidden;overscroll-behavior:none}
-body{position:fixed;inset:0;width:100%;max-width:100vw;overflow:hidden;overscroll-behavior:none;font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
-button{font:inherit;border:0;cursor:pointer;color:inherit;background:none}
-#txt,#search,#nm,#pw,#adm input,#adm textarea,#adm select{font-size:16px;-webkit-text-size-adjust:100%}
-
-svg{display:block}
-#app{position:relative;height:100dvh;height:var(--vh,100dvh);display:flex;overflow:hidden;-webkit-overflow-scrolling:touch}
-#side{width:330px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
-#side header{padding:calc(10px + env(safe-area-inset-top)) 14px 8px}
-.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:6px}
-.hd h1{font-size:20px;font-weight:700;letter-spacing:-.01em;cursor:pointer}
-.sub{font-size:12px;color:var(--mute);margin-left:6px;font-weight:400}
-.ib{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--mute);transition:background .15s,color .15s}
-.ib:hover{background:var(--hover);color:var(--text)}
-.hgrp{position:relative;display:flex;gap:2px;align-items:center}
-#menu,#cmenu{position:absolute;top:44px;right:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.18);padding:6px;min-width:190px;z-index:6;animation:mp .18s var(--ease);max-height:70dvh;overflow-y:auto}
-#cmenu{left:8px;right:auto;top:48px;min-width:200px}
-#menu button,#cmenu button{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:10px;font-weight:500;text-align:left;white-space:nowrap}
-#menu button:hover,#cmenu button:hover{background:var(--hover)}
-#menu .danger{color:#d9534f}
-#menu .sep,#cmenu .sep{height:1px;background:var(--line);margin:4px 6px}
-.mico{width:18px;height:18px;display:grid;place-items:center}
-.chip{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--mute);margin-left:6px;white-space:nowrap}
-#tg svg{transition:transform .45s var(--ease)}
-:root[data-theme=dark] #tg svg{transform:rotate(180deg)}
-#search{width:100%;border:0;background:var(--bg);color:var(--text);padding:10px 14px;border-radius:12px;outline:0;font:inherit;appearance:none;transition:box-shadow .15s}
-#search:focus{box-shadow:0 0 0 2px var(--sel),0 0 0 3px var(--acc)}
-#net{max-height:0;overflow:hidden;font-size:12px;color:var(--mute);text-align:center;transition:max-height .2s,padding .2s}
-.off #net{max-height:34px;padding:7px}
-.off #list{opacity:.5}
-.spin{width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;display:inline-block;margin-right:8px;vertical-align:-2px;animation:rot .8s linear infinite}
-#list{overflow-y:auto;flex:1;overscroll-behavior:contain;padding:4px 6px calc(8px + env(safe-area-inset-bottom));transition:opacity .2s;user-select:none;-webkit-user-select:none}
-.item{display:flex;gap:12px;padding:10px;border-radius:14px;cursor:pointer;align-items:center;transition:background .12s,transform .12s}
-.item:hover{background:var(--hover)}
-.item:active{transform:scale(.985);background:var(--sel)}
-.item.on{background:var(--sel)}
-.av{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:600;font-size:17px;position:relative}
-.av.dot::after{content:"";position:absolute;right:0;bottom:0;width:12px;height:12px;border-radius:50%;background:var(--on);border:2.5px solid var(--panel);animation:pp .3s var(--ease)}
-.item.on .av.dot::after{border-color:var(--sel)}
-.meta{flex:1;min-width:0}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:21px}
-.name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.time{font-size:12px;color:var(--mute);white-space:nowrap}
-.hl{color:var(--acc)!important}
-.prev{color:var(--mute);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.badge{background:var(--acc);color:var(--acc-t);border-radius:11px;min-width:22px;padding:0 7px;font-size:12px;font-weight:600;text-align:center;line-height:22px}
-.pop{animation:pp .3s var(--ease)}
-.dots{display:inline-flex;gap:2px;margin-left:3px;vertical-align:middle}
-.dots i{width:4px;height:4px;border-radius:50%;background:currentColor;animation:bl 1.2s infinite both}
-.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
-#main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--chat)}
-#main:not(.open)>:not(#empty){display:none}
-#main.open #empty{display:none}
-#empty{flex:1;display:grid;place-items:center;color:var(--mute);animation:fade .4s;text-align:center;padding:0 20px}
-#top{background:var(--panel);border-bottom:1px solid var(--line);padding:calc(8px + env(safe-area-inset-top)) 12px 8px 6px;display:flex;gap:8px;align-items:center;user-select:none;-webkit-user-select:none}
-#back{display:none;width:40px;height:40px;place-items:center;color:var(--acc);border-radius:50%}
-#top .av{width:40px;height:40px;font-size:15px}
-#top .av.dot::after{width:11px;height:11px}
-#mw{flex:1;min-height:0;position:relative}
-#msgs{height:100%;overflow-y:auto;overscroll-behavior:contain;padding:12px max(12px,calc((100% - 780px)/2)) 8px;display:flex;flex-direction:column;gap:2px}
-#mw.swap #msgs{animation:fade .2s}
-.m{max-width:min(78%,560px);padding:7px 12px 6px;border-radius:17px;background:var(--in);align-self:flex-start;overflow-wrap:anywhere;box-shadow:0 1px 1px rgba(0,0,0,.04)}
-.m:not(.g){margin-top:8px}
-.m.me{align-self:flex-end;background:var(--acc);color:var(--acc-t)}
-.m.new{animation:mp .22s var(--ease)}
-.m.me.new{transform-origin:100% 100%}.m:not(.me).new{transform-origin:0 100%}
-.m.me.g{border-top-right-radius:6px}.m.me.gp{border-bottom-right-radius:6px}
-.m:not(.me).g{border-top-left-radius:6px}.m:not(.me).gp{border-bottom-left-radius:6px}
-.m .x{white-space:pre-wrap}
-.m.big .x{font-size:34px;line-height:1.25}
-.m a{color:inherit;text-decoration:underline;text-underline-offset:2px}
-.m .who{font-size:12.5px;font-weight:600;margin-bottom:1px}
-.m .t{font-size:11px;opacity:.6;float:right;margin:6px 0 0 12px;user-select:none;-webkit-user-select:none}
-.day{align-self:center;font-size:12px;color:var(--mute);background:var(--panel);padding:3px 12px;border-radius:12px;margin:12px 0 6px;user-select:none;-webkit-user-select:none}
-.hint{align-self:center;margin:auto;color:var(--mute);animation:fade .3s;text-align:center;padding:0 16px;line-height:1.5}
-.fadeout{animation:fadeOut .25s forwards}
-#down{position:absolute;right:14px;bottom:12px;width:42px;height:42px;border-radius:50%;background:var(--panel);color:var(--mute);box-shadow:0 2px 12px rgba(0,0,0,.16);display:grid;place-items:center;opacity:0;transform:translateY(10px) scale(.9);pointer-events:none;transition:opacity .18s,transform .18s var(--ease)}
-#down.show{opacity:1;transform:none;pointer-events:auto}
-#dn{position:absolute;top:-7px;right:-3px;background:var(--acc);color:var(--acc-t);border-radius:10px;min-width:20px;padding:0 6px;font-size:11px;font-weight:600;line-height:20px;text-align:center}
-#bar{background:var(--panel);border-top:1px solid var(--line);padding:8px max(10px,calc((100% - 780px)/2)) calc(8px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:flex-end}
-#txt{flex:1;resize:none;border:0;background:var(--bg);color:var(--text);padding:11px 16px;border-radius:22px;max-height:140px;outline:0;font:inherit;line-height:1.35}
-#send{width:44px;height:44px;border-radius:50%;background:var(--mute);color:var(--acc-t);display:grid;place-items:center;flex:none;opacity:.45;transform:scale(.9);transition:background .2s,opacity .2s,transform .2s var(--ease)}
-#bar.has #send{background:var(--acc);opacity:1;transform:none}
-#bar.has #send:active{transform:scale(.92)}
-#login{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:9;animation:fade .25s;padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));min-height:100dvh}
-#lf{background:var(--panel);padding:28px;border-radius:20px;width:min(330px,90vw);display:flex;flex-direction:column;gap:12px;border:1px solid var(--line);animation:mp .35s var(--ease)}
-#lf.shake{animation:shake .35s}
-#lf h1{font-size:22px;cursor:pointer}
-#nm,#pw{border:1px solid var(--line);background:var(--bg);color:var(--text);padding:12px 14px;border-radius:12px;outline:0;font:inherit}
-#nm:focus,#pw:focus{border-color:var(--acc)}
-#lf button{background:var(--acc);color:var(--acc-t);padding:12px;border-radius:12px;font-weight:600}
-#le{color:#d9534f;font-size:13px;min-height:1.2em}
-#adm{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:10;animation:fade .2s;padding:calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left))}
-#adm form{background:var(--panel);padding:24px;border-radius:20px;width:min(560px,96vw);max-width:560px;max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line);animation:mp .35s var(--ease)}
-#adm h2{font-size:18px}
-#adm h3{font-size:15px;margin-top:4px}
-#adm input,#adm select{border:1px solid var(--line);background:var(--bg);color:var(--text);padding:10px 12px;border-radius:12px;outline:0;font:inherit;min-width:0}
-#adm input:focus{border-color:var(--acc)}
-#adm button{background:var(--acc);color:var(--acc-t);padding:11px 12px;border-radius:12px;font-weight:600}
-#adm button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
-#adm button.danger{background:#d9534f}
-#adm button.warn{background:#f0ad4e;color:#111}
-.albl{font-size:12.5px;color:var(--mute);font-weight:600}
-.arow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.arow input,.arow select{flex:1}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-.sep{border-top:1px solid var(--line);margin:4px 0}
-.list{max-height:160px;overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--bg);padding:6px;display:flex;flex-direction:column;gap:4px}
-.bitem{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:10px;background:var(--panel);border:1px solid var(--line)}
-.bmeta{font-size:12.5px;color:var(--mute)}
-#ae,#pe,#re,#rx,#ce,#be{color:#d9534f;font-size:13px;min-height:1.2em}
-#ae.ok,#pe.ok,#re.ok,#rx.ok,#ce.ok,#be.ok{color:var(--on)}
-#devm{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:11;animation:fade .2s;padding:calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left))}
-#devm form{background:var(--panel);padding:20px;border-radius:16px;width:min(420px,96vw);max-height:92dvh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;border:1px solid var(--line);animation:mp .35s var(--ease)}
-#devm h2{font-size:16px}
-#devm h3{font-size:14px}
-#devm input{border:1px solid var(--line);background:var(--bg);color:var(--text);padding:10px 12px;border-radius:10px;font:inherit}
-#devm button{background:var(--acc);color:var(--acc-t);padding:10px 12px;border-radius:10px;font-weight:600}
-#devm button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
-
-@keyframes mp{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:none}}
-@keyframes fade{from{opacity:0}to{opacity:1}}
-@keyframes pp{0%{transform:scale(.4)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
-@keyframes bl{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-2px)}}
-@keyframes rot{to{transform:rotate(360deg)}}
-@keyframes fadeOut{to{opacity:0;transform:translateY(6px)}}
-@media(max-width:700px){
-  #adm form{width:100%;max-width:100%;padding:20px;border-radius:16px;gap:10px}
-  #adm h2{font-size:17px}
-  #adm h3{font-size:14px}
-  #side{width:100%;max-width:100%;border-right:0}
-  #main{position:absolute;inset:0;width:100%;z-index:4;transform:translateX(100%);transition:transform .25s var(--ease);will-change:transform}
-  body.chat #main{transform:translateX(0)}
-  body:not(.chat) #main{box-shadow:none}
-  #back{display:grid}
-  #top{padding-left:2px}
+:root {
+  color-scheme: light;
+  --bg: #f5f4f0;
+  --panel: #fcfbf9;
+  --line: #e4e1d9;
+  --text: #242220;
+  --mute: #66625a;
+  --acc: #3b526d;
+  --acc-hover: #2d4057;
+  --acc-text: #3b526d;
+  --acc-t: #ffffff;
+  --in: #ffffff;
+  --hover: #edeae2;
+  --sel: #e2ded5;
+  --chat: #eeece6;
+  --bubble-in: #ffffff;
+  --bubble-out: #3b526d;
+  --bubble-out-t: #ffffff;
+  --on: #047857;
+  --danger: #dc2626;
+  --warn: #d97706;
+  --ring: rgba(59, 82, 109, 0.18);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-sm: 0 1px 2px 0 rgba(40, 35, 30, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(40, 35, 30, 0.06), 0 2px 6px -1px rgba(40, 35, 30, 0.03);
+  --shadow-lg: 0 12px 28px -4px rgba(40, 35, 30, 0.09), 0 6px 12px -3px rgba(40, 35, 30, 0.04);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+  --badge-bg: var(--acc);
+  --badge-t: var(--acc-t);
 }
-@media(max-width:480px){
-  #lf{padding:20px;border-radius:16px;width:96vw}
-  #adm form{padding:16px;border-radius:14px}
-  #txt{padding:10px 14px}
+:root[data-theme=dark] {
+  color-scheme: dark;
+  --bg: #090d16;
+  --panel: #111726;
+  --line: #1e293b;
+  --text: #f1f5f9;
+  --mute: #8292ab;
+  --acc: #4f46e5;
+  --acc-hover: #4338ca;
+  --acc-text: #8b9cf7;
+  --acc-t: #ffffff;
+  --in: #182235;
+  --hover: #1e293b;
+  --sel: #28334e;
+  --chat: #0c111d;
+  --bubble-in: #172133;
+  --bubble-out: #4f46e5;
+  --bubble-out-t: #ffffff;
+  --on: #10b981;
+  --danger: #f87171;
+  --warn: #fbbf24;
+  --ring: rgba(99, 102, 241, 0.22);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 32px -4px rgba(0, 0, 0, 0.5);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+  --badge-bg: var(--acc);
+  --badge-t: var(--acc-t);
 }
-@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+[hidden] { display: none !important; }
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body {
+  position: fixed; inset: 0; width: 100%; max-width: 100vw;
+  font: 14.5px/1.45 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg); color: var(--text);
+  -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%;
+}
+button { font: inherit; border: 0; cursor: pointer; color: inherit; background: none; }
+input, textarea, select { font-family: inherit; font-size: 15px; }
+svg { display: block; }
+
+/* Accessible Focus Indicators (R-32) */
+:focus-visible {
+  outline: 2px solid var(--acc) !important;
+  outline-offset: 2px !important;
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--acc) !important;
+  outline-offset: 0 !important;
+}
+button:focus-visible, .item:focus-visible, .btn:focus-visible, .ib:focus-visible, .dp-chip:focus-visible, .atab:focus-visible {
+  outline: 2px solid var(--acc) !important;
+  outline-offset: 2px !important;
+}
+
+#app {
+  position: relative; height: 100dvh; height: var(--vh, 100dvh);
+  display: flex; flex-direction: column; overflow: hidden; -webkit-overflow-scrolling: touch;
+}
+#chatview { flex: 1; display: flex; min-width: 0; min-height: 0; position: relative; }
+
+/* Sidebar */
+#side {
+  width: 340px; flex: none; background: var(--panel);
+  border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0;
+  transition: transform 0.25s var(--ease);
+}
+#side header { padding: calc(12px + env(safe-area-inset-top)) 16px 8px; }
+.hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+.hd h1 {
+  font-size: 20px; font-weight: 700; letter-spacing: -0.02em;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px; cursor: pointer;
+}
+.sub {
+  font-size: 11.5px; color: var(--mute); font-weight: 500; background: var(--hover);
+  padding: 2px 7px; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.sub:hover { background: var(--sel); color: var(--acc-text); }
+.ib {
+  width: 40px; height: 40px; min-width: 40px; min-height: 40px; border-radius: var(--radius-md); display: grid; place-items: center;
+  color: var(--mute); transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.ib:hover { background: var(--hover); color: var(--text); }
+.ib:active { transform: scale(0.94); }
+.hgrp { position: relative; display: flex; gap: 4px; align-items: center; }
+
+#menu, #cmenu {
+  position: absolute; top: 46px; right: 0; background: var(--panel);
+  border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+  padding: 6px; min-width: 210px; z-index: 20; animation: mp 0.18s var(--ease);
+  max-height: 75dvh; overflow-y: auto; backdrop-filter: blur(12px);
+}
+#cmenu { left: 8px; right: auto; top: 50px; }
+#menu button, #cmenu button {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px;
+  border-radius: var(--radius-md); font-weight: 500; font-size: 13.5px; text-align: left;
+  transition: background 0.12s;
+}
+#menu button:hover, #cmenu button:hover { background: var(--hover); }
+#menu .danger, #cmenu .danger { color: var(--danger); }
+#menu .sep, #cmenu .sep { height: 1px; background: var(--line); margin: 4px 6px; }
+.mico { width: 18px; height: 18px; display: grid; place-items: center; }
+/* Live Status Pill & Indicators */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5.5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 3px 8.5px;
+  border-radius: var(--radius-full);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  color: #047857;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  user-select: none;
+}
+:root[data-theme=dark] .status-pill {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.32);
+  color: #34d399;
+}
+.status-pill.is-zero {
+  background: var(--hover);
+  border-color: var(--line);
+  color: var(--mute);
+}
+.status-dot {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  background: #059669;
+  display: inline-block;
+  flex-shrink: 0;
+  position: relative;
+}
+.status-pill.is-zero .status-dot {
+  background: var(--mute);
+  opacity: 0.5;
+}
+
+/* Chat Header Status */
+.status-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #047857;
+  font-weight: 600;
+}
+:root[data-theme=dark] .status-online { color: #34d399; }
+.dot-online {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Admin Metric Cards */
+.adm-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.metric-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.metric-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  color: var(--mute);
+  flex-shrink: 0;
+}
+.metric-icon-live {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #10b981;
+}
+.metric-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.metric-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--mute);
+}
+.metric-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.chip {
+  font-size: 11px; padding: 2px 8px; border-radius: var(--radius-full); background: var(--bg);
+  border: 1px solid var(--line); color: var(--mute); font-weight: 600;
+}
+
+#tg svg { transition: transform 0.4s var(--ease); }
+:root[data-theme=dark] #tg svg { transform: rotate(180deg); }
+
+#search-wrap { position: relative; margin-top: 4px; }
+#search {
+  width: 100%; border: 1px solid transparent; background: var(--bg); color: var(--text);
+  padding: 10px 14px 10px 36px; border-radius: var(--radius-md); outline: 0; font: inherit;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+#search:focus {
+  background: var(--panel); border-color: var(--acc);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+.search-ico { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--mute); pointer-events: none; }
+
+#net {
+  max-height: 0; overflow: hidden; font-size: 12px; color: var(--mute);
+  text-align: center; transition: max-height 0.25s, padding 0.25s;
+}
+.off #net { max-height: 38px; padding: 8px; background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+.off #list { opacity: 0.6; }
+.spin {
+  width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--acc);
+  border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: -2px;
+  animation: rot 0.8s linear infinite;
+}
+
+/* Sidebar Sections */
+.s-section {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px 4px; font-size: 11.5px; font-weight: 700; color: var(--mute);
+  text-transform: uppercase; letter-spacing: 0.05em; user-select: none;
+}
+.s-add-btn {
+  font-size: 12px; font-weight: 600; color: var(--acc-text); display: flex; align-items: center; gap: 3px;
+  padding: 2px 6px; border-radius: var(--radius-sm); text-transform: none;
+}
+.s-add-btn:hover { background: var(--hover); }
+
+#list {
+  overflow-y: auto; flex: 1; overscroll-behavior: contain; padding: 4px 8px calc(12px + env(safe-area-inset-bottom));
+  user-select: none; -webkit-user-select: none;
+}
+.item {
+  display: flex; gap: 12px; padding: 10px 12px; border-radius: var(--radius-md); cursor: pointer;
+  align-items: center; transition: background 0.12s, transform 0.12s; margin-bottom: 2px;
+}
+.item:hover { background: var(--hover); }
+.item:active { transform: scale(0.985); }
+.item.on { background: var(--sel); }
+.av {
+  width: 44px; height: 44px; border-radius: var(--radius-lg); flex: none; display: grid;
+  place-items: center; font-weight: 700; font-size: 16px; position: relative;
+  letter-spacing: -0.02em; box-shadow: var(--shadow-sm);
+}
+.av.dot::after {
+  content: ""; position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px;
+  border-radius: 50%; background: var(--on); border: 2.5px solid var(--panel);
+  animation: pp 0.3s var(--ease);
+}
+.item.on .av.dot::after { border-color: var(--sel); }
+.meta { flex: 1; min-width: 0; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 20px; }
+.name { font-weight: 600; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.time { font-size: 11.5px; color: var(--mute); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hl { color: var(--acc-text) !important; font-weight: 600; }
+.prev { color: var(--mute); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge {
+  background: var(--acc); color: var(--acc-t); border-radius: var(--radius-full); min-width: 20px;
+  padding: 0 6px; font-size: 11px; font-weight: 700; text-align: center; line-height: 20px;
+}
+.pop { animation: pp 0.3s var(--ease); }
+.dots { display: inline-flex; gap: 2px; margin-left: 3px; vertical-align: middle; }
+.dots i { width: 3.5px; height: 3.5px; border-radius: 50%; background: currentColor; animation: bl 1.2s infinite both; }
+.dots i:nth-child(2) { animation-delay: 0.15s; } .dots i:nth-child(3) { animation-delay: 0.3s; }
+
+/* Main Chat Section */
+#main { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--chat); }
+#main:not(.open) > :not(#empty) { display: none; }
+#main.open #empty { display: none; }
+#empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--mute); text-align: center; padding: 24px; gap: 10px;
+}
+.empty-ico {
+  width: 68px; height: 68px; border-radius: var(--radius-xl); background: var(--panel);
+  display: grid; place-items: center; color: var(--acc-text); box-shadow: var(--shadow-md); margin-bottom: 6px;
+}
+#empty h3 { font-size: 18px; color: var(--text); font-weight: 700; }
+#empty p { font-size: 13.5px; max-width: 320px; line-height: 1.5; }
+
+#top {
+  background: var(--panel); border-bottom: 1px solid var(--line);
+  padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+  display: flex; gap: 10px; align-items: center; user-select: none; -webkit-user-select: none;
+}
+#back {
+  display: none; width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+  place-items: center; color: var(--acc-text); border-radius: var(--radius-md);
+  transition: background 0.15s;
+}
+#back:hover { background: var(--hover); }
+#top .av { width: 40px; height: 40px; font-size: 15px; border-radius: var(--radius-lg); }
+#top .av.dot::after { width: 11px; height: 11px; }
+
+/* Search Inside Message History Bar */
+#csearchBar {
+  background: var(--panel); border-bottom: 1px solid var(--line);
+  padding: 8px 16px; display: flex; align-items: center; gap: 10px; animation: mp 0.18s var(--ease);
+}
+#csearchInput {
+  flex: 1; border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  padding: 8px 12px; border-radius: var(--radius-md); font-size: 13.5px; outline: 0;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+#csearchInput:focus { border-color: var(--acc); box-shadow: 0 0 0 3px var(--ring); }
+#csearchCount { font-size: 12px; color: var(--mute); font-weight: 600; white-space: nowrap; }
+
+#mw { flex: 1; min-height: 0; position: relative; }
+#msgs {
+  height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  padding: 16px max(16px, calc((100% - 800px)/2)) 40px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+#mw.swap #msgs { animation: fade 0.2s; }
+
+/* Message Bubble */
+.m-wrap {
+  display: flex; flex-direction: column; position: relative;
+  align-self: flex-start; max-width: min(82%, 580px); transition: opacity 0.2s;
+}
+.m-wrap.me { align-self: flex-end; align-items: flex-end; }
+.m-wrap:not(.g) { margin-top: 10px; }
+.m-wrap.dimmed { opacity: 0.2; }
+.m-wrap.highlight-match .m { box-shadow: 0 0 0 2px var(--acc); }
+
+.m {
+  position: relative; padding: 8px 14px 7px; border-radius: var(--radius-xl);
+  background: var(--bubble-in); color: var(--text); align-self: flex-start;
+  overflow-wrap: anywhere; box-shadow: var(--shadow-sm); border: 1px solid var(--line);
+  transition: transform 0.12s; cursor: pointer;
+}
+.m.new { animation: mp 0.22s var(--ease); }
+.m-wrap.me .m {
+  align-self: flex-end; background: var(--bubble-out); color: var(--bubble-out-t);
+  border-color: transparent;
+}
+.m-wrap.me .m.new { transform-origin: 100% 100%; }
+.m-wrap:not(.me) .m.new { transform-origin: 0 100%; }
+.m-wrap.me.g .m { border-top-right-radius: 6px; }
+.m-wrap.me.gp .m { border-bottom-right-radius: 6px; }
+.m-wrap:not(.me).g .m { border-top-left-radius: 6px; }
+.m-wrap:not(.me).gp .m { border-bottom-left-radius: 6px; }
+
+.m .who { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.m .x { white-space: pre-wrap; word-break: break-word; line-height: 1.45; }
+.m.big .x { font-size: 32px; line-height: 1.25; }
+.m a { color: inherit; text-decoration: underline; text-underline-offset: 3px; font-weight: 500; }
+.m .t {
+  font-size: 11px; opacity: 0.65; float: right; margin: 4px 0 0 10px;
+  user-select: none; -webkit-user-select: none; font-variant-numeric: tabular-nums;
+}
+
+/* Quote Block inside Bubble */
+.qblock {
+  display: flex; flex-direction: column; padding: 6px 10px; border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.06); border-left: 3px solid var(--acc);
+  margin-bottom: 6px; cursor: pointer; font-size: 12.5px;
+}
+:root[data-theme=dark] .qblock { background: rgba(255, 255, 255, 0.08); }
+.m-wrap.me .qblock { background: rgba(0, 0, 0, 0.18); border-left-color: rgba(255, 255, 255, 0.7); color: rgba(255, 255, 255, 0.95); }
+.qblock .qwho { font-weight: 700; font-size: 11.5px; margin-bottom: 1px; }
+.qblock .qtext { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0.9; }
+
+/* Image Media inside Bubble */
+.mimg-wrap { margin: 4px 0; border-radius: var(--radius-md); overflow: hidden; cursor: pointer; max-width: 320px; }
+.mimg { width: 100%; height: auto; max-height: 280px; object-fit: cover; display: block; transition: transform 0.2s; }
+.mimg:hover { transform: scale(1.02); }
+
+/* Code Block inside Message */
+.cblock {
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  background: #0f172a; color: #f8fafc; padding: 12px 14px; border-radius: var(--radius-md);
+  margin: 6px 0; overflow-x: auto; white-space: pre; position: relative;
+}
+.cblock-copy-btn {
+  position: absolute; top: 6px; right: 6px; padding: 3px 8px; font-size: 11px;
+  font-weight: 600; font-family: inherit; background: rgba(255, 255, 255, 0.12); color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.18); border-radius: var(--radius-sm);
+  cursor: pointer; opacity: 0; transition: opacity 0.15s, background 0.15s;
+}
+.cblock:hover .cblock-copy-btn { opacity: 1; }
+@media (hover: none) { .cblock-copy-btn { opacity: 0.85; } }
+.cblock-copy-btn:hover { background: rgba(255, 255, 255, 0.25); }
+
+#dragDropOverlay {
+  position: absolute; inset: 0; background: rgba(0, 0, 0, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; pointer-events: none; animation: fade 0.15s;
+}
+.dd-box {
+  background: var(--panel); border: 2px dashed var(--acc); border-radius: var(--radius-lg);
+  padding: 24px 36px; text-align: center; color: var(--text); display: flex; flex-direction: column;
+  align-items: center; gap: 10px; box-shadow: var(--shadow-lg); font-size: 13.5px; font-weight: 600;
+}
+.dd-box svg { color: var(--acc-text); }
+
+.search-kbd {
+  font-family: inherit; font-size: 10px; font-weight: 600; color: var(--mute);
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 1px 6px; position: absolute; right: 10px; pointer-events: none;
+  top: 50%; transform: translateY(-50%);
+}
+@media (max-width: 640px) { .search-kbd { display: none; } }
+
+.m-wrap.me .cblock { background: rgba(0, 0, 0, 0.28); color: #fff; }
+.icode {
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 1px 5px;
+  border-radius: var(--radius-sm); background: rgba(0, 0, 0, 0.08);
+}
+:root[data-theme=dark] .icode { background: rgba(255, 255, 255, 0.12); }
+.m-wrap.me .icode { background: rgba(0, 0, 0, 0.25); }
+
+/* Action Bar on Message (Triggered on Click Only) - Positioned Below Bubble */
+.m-actions {
+  position: absolute;
+  top: calc(100% + 4px);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  gap: 3px;
+  padding: 2.5px 5px;
+  z-index: 25;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.m-wrap:not(.me) .m-actions { left: 4px; right: auto; }
+.m-wrap.me .m-actions { right: 4px; left: auto; }
+.m-wrap.show-actions {
+  z-index: 20;
+}
+.m-wrap.show-actions .m-actions {
+  opacity: 1; pointer-events: auto; transform: none;
+}
+.m-actions button {
+  width: 28px; height: 28px; min-width: 28px; min-height: 28px; border-radius: var(--radius-full);
+  display: grid; place-items: center; color: var(--mute); transition: background 0.12s, color 0.12s, transform 0.1s;
+}
+.m-actions button:hover { background: var(--hover); color: var(--text); transform: scale(1.08); }
+.m-actions button.del-btn:hover { color: var(--danger); background: rgba(239, 68, 68, 0.12); }
+
+@media (hover: none) {
+  .m-actions {
+    top: calc(100% + 4px); padding: 3px 5px; gap: 4px;
+  }
+  .m-actions button {
+    width: 32px; height: 32px; min-width: 32px; min-height: 32px;
+  }
+}
+
+
+
+/* System Notification Messages in Chat Timeline */
+.sys-msg {
+  align-self: center;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin: 6px 0;
+  max-width: 85%;
+  color: var(--mute);
+  font-size: 12px;
+  line-height: 1.4;
+  user-select: none;
+}
+.sys-pill {
+  font-weight: 500;
+}
+.sys-time {
+  font-size: 10.5px;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.day {
+  align-self: center; font-size: 12px; font-weight: 600; color: var(--mute);
+  background: var(--panel); padding: 4px 14px; border-radius: var(--radius-full);
+  margin: 14px 0 8px; box-shadow: var(--shadow-sm); border: 1px solid var(--line);
+  user-select: none; -webkit-user-select: none;
+}
+.hint {
+  align-self: center; margin: auto; color: var(--mute); animation: fade 0.3s;
+  text-align: center; padding: 12px 24px; line-height: 1.5; font-size: 13.5px;
+}
+.fadeout { animation: fadeOut 0.25s forwards; }
+
+#down {
+  position: absolute; right: 16px; bottom: 16px; width: 44px; height: 44px;
+  border-radius: 50%; background: var(--panel); color: var(--mute);
+  box-shadow: var(--shadow-md); border: 1px solid var(--line);
+  display: grid; place-items: center; opacity: 0; transform: translateY(12px) scale(0.9);
+  pointer-events: none; transition: opacity 0.18s, transform 0.18s var(--ease);
+}
+#down.show { opacity: 1; transform: none; pointer-events: auto; }
+#dn {
+  position: absolute; top: -6px; right: -4px; background: var(--acc);
+  color: var(--acc-t); border-radius: var(--radius-full); min-width: 20px; padding: 0 6px;
+  font-size: 11px; font-weight: 700; line-height: 20px; text-align: center;
+}
+
+/* Reply / Media preview bar above input */
+#replyBar, #imgPreviewBar {
+  background: var(--panel); border-top: 1px solid var(--line);
+  padding: 8px 16px; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; animation: mp 0.2s var(--ease);
+}
+.rline { width: 3px; height: 32px; border-radius: 2px; background: var(--acc); flex: none; }
+.rcontent { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 13px; }
+#replyWho { font-weight: 700; font-size: 12px; color: var(--acc-text); }
+#replyText { color: var(--mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.close-btn { width: 28px; height: 28px; border-radius: var(--radius-sm); display: grid; place-items: center; color: var(--mute); }
+.close-btn:hover { background: var(--hover); color: var(--text); }
+
+#imgPreviewBar { gap: 12px; }
+#imgPreviewThumb { width: 44px; height: 44px; border-radius: var(--radius-sm); object-fit: cover; flex: none; }
+.preview-info { flex: 1; min-width: 0; }
+#imgPreviewName { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+#imgPreviewStatus { font-size: 11.5px; color: var(--mute); }
+
+/* Chat input bar */
+#bar {
+  background: var(--panel); border-top: 1px solid var(--line);
+  padding: 10px max(14px, calc((100% - 800px)/2)) calc(10px + env(safe-area-inset-bottom));
+  display: flex; gap: 8px; align-items: flex-end;
+}
+#txt {
+  flex: 1; resize: none; border: 1px solid transparent; background: var(--bg);
+  color: var(--text); padding: 11px 16px; border-radius: var(--radius-xl); max-height: 140px;
+  outline: 0; font: inherit; line-height: 1.4; transition: border-color 0.15s, background 0.15s;
+}
+#txt:focus { background: var(--panel); border-color: var(--acc); box-shadow: 0 0 0 3px var(--ring); }
+#send {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--mute);
+  color: var(--acc-t); display: grid; place-items: center; flex: none;
+  opacity: 0.4; transform: scale(0.92); transition: background 0.2s, opacity 0.2s, transform 0.2s var(--ease);
+}
+#bar.has #send { background: var(--acc); opacity: 1; transform: none; }
+#bar.has #send:hover { background: var(--acc-hover); }
+#bar.has #send:active { transform: scale(0.92); }
+
+/* Login Modal */
+#login {
+  position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center;
+  z-index: 100; animation: fade 0.25s;
+  padding: max(16px, env(safe-area-inset-top, 16px)) max(16px, env(safe-area-inset-right, 16px)) max(16px, env(safe-area-inset-bottom, 16px)) max(16px, env(safe-area-inset-left, 16px));
+  min-height: 100dvh; overflow-y: auto; box-sizing: border-box;
+}
+#lf, #lcf {
+  background: var(--panel); padding: 32px 28px; border-radius: var(--radius-2xl);
+  width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 14px;
+  border: 1px solid var(--line); box-shadow: var(--shadow-lg); animation: mp 0.3s var(--ease);
+  margin: auto; box-sizing: border-box;
+}
+#lf.shake { animation: shake 0.35s; }
+.login-hd { text-align: center; margin-bottom: 6px; }
+.login-hd h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.login-hd p { font-size: 13px; color: var(--mute); margin-top: 4px; }
+#nm, #pw, #lcode {
+  border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  padding: 12px 14px; border-radius: var(--radius-md); outline: 0; font: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+#nm:focus, #pw:focus, #lcode:focus {
+  border-color: var(--acc); box-shadow: 0 0 0 3px var(--ring);
+}
+#lf button, #lcodego {
+  background: var(--acc); color: var(--acc-t); padding: 13px; border-radius: var(--radius-md);
+  font-weight: 600; font-size: 15px; transition: background 0.15s;
+}
+#lf button:hover, #lcodego:hover { background: var(--acc-hover); }
+#le, #lce { color: var(--danger); font-size: 13px; text-align: center; min-height: 1.2em; font-weight: 500; }
+
+/* Admin, Channel & Device Modals */
+#adm, #newChanModal, #devm {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55);
+  display: flex; align-items: center; justify-content: center; z-index: 110; animation: fade 0.2s var(--ease);
+  padding: max(16px, env(safe-area-inset-top, 16px)) max(16px, env(safe-area-inset-right, 16px)) max(16px, env(safe-area-inset-bottom, 16px)) max(16px, env(safe-area-inset-left, 16px));
+  box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain;
+}
+.adm-box {
+  background: var(--panel); border-radius: var(--radius-xl);
+  width: 100%; max-width: 620px;
+  height: min(640px, calc(100dvh - 32px));
+  display: flex; flex-direction: column; border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg); animation: modalIn 0.22s var(--ease);
+  overflow: hidden; margin: auto; box-sizing: border-box;
+}
+#newChanModal .adm-box, #devm .adm-box {
+  height: auto;
+  min-height: 0;
+  max-height: min(640px, calc(100dvh - 32px));
+  max-width: 440px;
+}
+
+/* Confirm Dialog (minimalis) */
+#cfm {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55);
+  display: flex; align-items: center; justify-content: center; z-index: 130; animation: fade 0.2s var(--ease);
+  padding: max(16px, env(safe-area-inset-top, 16px)) max(16px, env(safe-area-inset-right, 16px)) max(16px, env(safe-area-inset-bottom, 16px)) max(16px, env(safe-area-inset-left, 16px));
+  box-sizing: border-box;
+}
+#cfm .cfm-box {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  width: 100%; max-width: 380px; padding: 20px 20px 16px; box-shadow: var(--shadow-lg);
+  animation: modalIn 0.22s var(--ease); display: flex; flex-direction: column; gap: 16px;
+}
+#cfm h3 {
+  font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 8px; color: var(--danger);
+}
+#cfm h3 svg { flex-shrink: 0; }
+#cfm .cfm-box.cfm-info h3 { color: var(--text); }
+#cfm .cfm-msg { font-size: 13.5px; color: var(--mute); line-height: 1.5; }
+#cfm .cfm-input {
+  width: 100%; padding: 10px 12px; background: var(--bg); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--radius-md); font: inherit; font-size: 14px; outline: 0;
+}
+#cfm .cfm-input:focus { border-color: var(--acc); box-shadow: 0 0 0 3px var(--ring); }
+#cfm .cfm-acts { display: flex; gap: 8px; justify-content: flex-end; }
+#cfm .cfm-acts .btn { min-width: 90px; padding: 9px 16px; }
+
+/* User Profile Styles */
+.prof-hero {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+  padding: 24px 18px 20px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg);
+}
+.prof-av-wrap { position: relative; flex-shrink: 0; cursor: pointer; transition: transform 0.15s var(--ease); }
+.prof-av {
+  width: 88px; height: 88px; border-radius: var(--radius-full);
+  display: grid; place-items: center; font-size: 34px; font-weight: 700;
+  box-shadow: var(--shadow-md); user-select: none;
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  transition: filter 0.15s;
+}
+.prof-av-wrap:hover .prof-av { filter: brightness(0.92); }
+.prof-av-badge {
+  position: absolute; bottom: 0; right: 0; width: 28px; height: 28px;
+  border-radius: 50%; background: var(--acc); color: var(--acc-t);
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--panel); cursor: pointer;
+  box-shadow: var(--shadow-sm); transition: transform 0.15s;
+}
+.prof-av-wrap:hover .prof-av-badge { transform: scale(1.12); }
+.prof-name { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prof-meta { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+.prof-role { font-size: 11.5px; font-weight: 600; color: var(--mute); }
+.prof-av-actions { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.btn-subtle {
+  display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px;
+  font-size: 12px; font-weight: 600; border-radius: var(--radius-sm);
+  background: var(--panel); border: 1px solid var(--line); color: var(--text);
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-subtle:hover { background: var(--hover); border-color: var(--acc); color: var(--acc-text); }
+.btn-danger-subtle { color: #dc2626; }
+.btn-danger-subtle:hover { background: rgba(220, 38, 38, 0.08); border-color: #dc2626; color: #dc2626; }
+@media (max-width: 768px) {
+  .btn-subtle { min-height: 44px; padding: 9px 12px; }
+  .btn { min-height: 44px; }
+  .card-input { min-height: 44px; }
+}
+.prof-av-tip { font-size: 11px; color: var(--mute); margin-top: 2px; }
+.status-bio { font-style: italic; color: var(--mute); font-weight: 400; margin-left: 4px; }
+
+/* Form content inside a settings card */
+.card-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.card-hint { font-size: 12.5px; color: var(--mute); line-height: 1.5; }
+.card-input {
+  width: 100%; padding: 10px 12px; background: var(--bg); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--radius-md); font: inherit; font-size: 14px; outline: 0;
+}
+.card-input:focus { border-color: var(--acc); box-shadow: 0 0 0 3px var(--ring); }
+.pw-field { position: relative; display: flex; }
+.pw-field .card-input { padding-right: 46px; }
+.pw-toggle {
+  position: absolute; top: 0; right: 0; height: 100%; width: 44px;
+  display: grid; place-items: center; color: var(--mute);
+  border-radius: var(--radius-md); transition: color 0.15s;
+}
+.pw-toggle:hover { color: var(--text); }
+.pw-toggle.on { color: var(--acc-text); }
+.pw-toggle .i-eye-off { display: none; }
+.pw-toggle.on .i-eye { display: none; }
+.pw-toggle.on .i-eye-off { display: block; }
+.card-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.card-actions .msg-status { margin: 0; }
+.card-actions .btn { margin-left: auto; }
+
+/* Native Toast Notifications */
+#toast-container {
+  position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); right: 24px;
+  display: flex; flex-direction: column-reverse; gap: 8px;
+  z-index: 9999; pointer-events: none;
+  max-width: min(380px, calc(100vw - 32px));
+}
+@media (max-width: 640px) {
+  #toast-container { left: 16px; right: 16px; bottom: calc(74px + env(safe-area-inset-bottom)); max-width: none; align-items: center; }
+}
+.toast-item {
+  pointer-events: auto; display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--panel); border: 1px solid var(--line);
+  color: var(--text); border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
+  font-size: 13.5px; font-weight: 500; line-height: 1.4; backdrop-filter: blur(12px);
+  cursor: pointer; user-select: none;
+  transition: transform 0.22s var(--ease), opacity 0.22s var(--ease);
+  animation: toastIn 0.25s var(--ease); word-break: break-word;
+}
+.toast-item:hover { transform: translateY(-2px); }
+.toast-item.toast-out { opacity: 0; transform: translateY(8px) scale(0.95); pointer-events: none; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.toast-icon { width: 20px; height: 20px; flex-shrink: 0; display: grid; place-items: center; }
+.toast-item.toast-success .toast-icon { color: var(--on); }
+.toast-item.toast-error .toast-icon { color: var(--danger); }
+.toast-item.toast-info .toast-icon { color: var(--acc-text); }
+.toast-item.toast-warn .toast-icon { color: var(--warn); }
+.toast-text { flex: 1; }
+#avf {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: 32px 28px; gap: 14px;
+}
+.tab-pane {
+  animation: tabSlideIn 0.18s var(--ease);
+  flex: 1; display: flex; flex-direction: column;
+}
+.tab-pane[hidden] { display: none !important; }
+.adm-head {
+  padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex;
+  align-items: center; justify-content: space-between;
+}
+.adm-head h2 { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+/* Admin Tabs Nav */
+.adm-nav {
+  display: flex; background: var(--bg); padding: 4px; border-bottom: 1px solid var(--line);
+  overflow-x: auto; gap: 4px;
+}
+.atab {
+  padding: 8px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; min-height: 38px;
+  color: var(--mute); transition: background 0.12s, color 0.12s; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.atab:hover { color: var(--text); }
+.atab.active { background: var(--panel); color: var(--acc-text); box-shadow: var(--shadow-sm); }
+
+.adm-body { padding: 18px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.adm-body h3 { font-size: 14.5px; font-weight: 700; margin-top: 4px; }
+.albl { font-size: 12px; color: var(--mute); font-weight: 600; margin-bottom: 3px; display: block; }
+.arow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.arow input, .arow select { flex: 1; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+
+.adm-box input, .adm-box select, .adm-box textarea {
+  border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  padding: 9px 12px; border-radius: var(--radius-md); outline: 0; font: inherit; min-width: 0; width: 100%;
+}
+.adm-box input:focus, .adm-box select:focus, .adm-box textarea:focus { border-color: var(--acc); box-shadow: 0 0 0 3px var(--ring); }
+.btn {
+  background: var(--acc); color: var(--acc-t); padding: 9px 14px; border-radius: var(--radius-md);
+  font-weight: 600; font-size: 13.5px; transition: background 0.15s; display: inline-flex;
+  align-items: center; justify-content: center; gap: 6px; min-height: 40px;
+}
+.btn:hover { background: var(--acc-hover); }
+.btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+.btn.ghost:hover { background: var(--hover); }
+.btn.danger { background: var(--danger); }
+.btn.danger:hover { opacity: 0.9; }
+.btn.warn { background: var(--warn); color: #111; }
+
+.day-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.dp-chip {
+  padding: 6px 12px; min-height: 36px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600;
+  background: var(--bg); border: 1px solid var(--line); color: var(--mute); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.dp-chip.on { background: var(--acc); color: #fff; border-color: var(--acc); }
+
+.empty-search-hint {
+  padding: 32px 16px; text-align: center; color: var(--mute); font-size: 13.5px; line-height: 1.5;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.empty-search-hint svg { color: var(--mute); opacity: 0.6; }
+
+.list {
+  max-height: 180px; overflow: auto; border: 1px solid var(--line);
+  border-radius: var(--radius-lg); background: var(--bg); padding: 6px; display: flex; flex-direction: column; gap: 4px;
+}
+.bitem {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 10px; border-radius: var(--radius-md); background: var(--panel); border: 1px solid var(--line);
+}
+.bmeta { font-size: 12px; color: var(--mute); }
+.msg-status { font-size: 12.5px; font-weight: 600; min-height: 1.2em; color: var(--danger); }
+.msg-status.ok { color: var(--on); }
+
+/* Lightbox Modal */
+#lightbox {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75);
+  display: flex; align-items: center; justify-content: center; z-index: 125; animation: fade 0.2s;
+  padding: max(16px, env(safe-area-inset-top, 16px)) max(16px, env(safe-area-inset-right, 16px)) max(16px, env(safe-area-inset-bottom, 16px)) max(16px, env(safe-area-inset-left, 16px));
+  box-sizing: border-box;
+}
+#lightbox img {
+  max-width: 100%; max-height: calc(100dvh - 32px); border-radius: var(--radius-lg); object-fit: contain;
+  box-shadow: var(--shadow-lg); animation: mp 0.25s var(--ease); margin: auto;
+}
+.lightbox-close {
+  position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+  border-radius: var(--radius-full); background: rgba(0, 0, 0, 0.6); color: #fff; display: grid; place-items: center;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tabSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes mp { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(6px); } }
+@keyframes pp { 0% { transform: scale(0.4); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@keyframes bl { 0%, 60%, 100% { opacity: 0.25; transform: none; } 30% { opacity: 1; transform: translateY(-2px); } }
+@keyframes rot { to { transform: rotate(360deg); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* ===== Bottom Tab Navigation ===== */
+#tabbar {
+  flex: none; display: flex; gap: 2px; background: var(--panel);
+  border-top: 1px solid var(--line); padding: 5px 8px calc(5px + env(safe-area-inset-bottom));
+}
+.tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  padding: 4px 2px; min-height: 54px; border-radius: var(--radius-md);
+  color: var(--mute); font-size: 11px; font-weight: 600; letter-spacing: 0.01em;
+  transition: color 0.15s, background 0.15s;
+}
+.tab:hover { background: var(--hover); color: var(--text); }
+.tab.on { color: var(--acc-text); }
+.tab-ico {
+  display: grid; place-items: center; width: 46px; height: 27px;
+  border-radius: var(--radius-full); transition: background 0.18s var(--ease);
+}
+.tab.on .tab-ico { background: var(--sel); }
+
+/* ===== Tab / View Transitions ===== */
+.view.enter, #chatview.enter { animation: tabSlideIn 0.22s var(--ease); }
+.view.enter .view-body > * {
+  animation: tabSlideIn 0.28s var(--ease) both;
+}
+.view.enter .view-body > *:nth-child(1) { animation-delay: 0.02s; }
+.view.enter .view-body > *:nth-child(2) { animation-delay: 0.06s; }
+.view.enter .view-body > *:nth-child(3) { animation-delay: 0.10s; }
+.view.enter .view-body > *:nth-child(4) { animation-delay: 0.14s; }
+.view.enter .view-body > *:nth-child(5) { animation-delay: 0.18s; }
+.view.enter .view-body > *:nth-child(6) { animation-delay: 0.22s; }
+.tab-ico.pop { animation: tabIconPop 0.28s var(--ease); }
+@keyframes tabIconPop {
+  0% { transform: scale(0.82); }
+  55% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* ===== Full-page Tab Views (Pengaturan / Profil) ===== */
+.view { flex: 1; min-height: 0; overflow-y: auto; background: var(--bg); overscroll-behavior: contain; }
+.view-head {
+  position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+  padding: calc(14px + env(safe-area-inset-top)) 18px 14px; display: flex; align-items: center;
+}
+.view-head h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
+.view-body {
+  padding: 16px 18px calc(28px + env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; gap: 20px;
+  max-width: 600px; width: 100%; margin: 0 auto;
+}
+#viewProfile .prof-hero { background: var(--panel); }
+
+.set-group { display: flex; flex-direction: column; }
+.set-group > .albl { margin-bottom: 8px; }
+.set-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+.set-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px;
+  text-align: left; color: var(--text); transition: background 0.12s;
+}
+.set-row + .set-row { border-top: 1px solid var(--line); }
+.set-row:hover { background: var(--hover); }
+.set-row:active { background: var(--sel); }
+.set-ico {
+  width: 34px; height: 34px; border-radius: var(--radius-md); flex: none;
+  display: grid; place-items: center; background: var(--hover); color: var(--acc-text);
+}
+.set-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.set-label { font-weight: 600; font-size: 14px; }
+.set-sub { font-size: 12px; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.set-val { flex: none; font-size: 12.5px; font-weight: 600; color: var(--mute); }
+.set-chev { flex: none; color: var(--mute); display: grid; place-items: center; }
+.set-row.danger, .set-row.danger .set-ico { color: var(--danger); }
+.set-row.danger .set-ico { background: rgba(220, 38, 38, 0.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media(max-width: 768px) {
+  #side { width: 100%; max-width: 100%; border-right: 0; }
+  #main {
+    position: absolute; inset: 0; width: 100%; z-index: 10;
+    transform: translateX(100%); transition: transform 0.25s var(--ease); will-change: transform;
+  }
+  body.chat #main { transform: translateX(0); }
+  #back { display: grid; width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+  .ib { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+  .btn { min-height: 44px; }
+  .dp-chip { min-height: 44px; padding: 8px 12px; font-size: 13px; }
+  .atab { min-height: 42px; padding: 8px 12px; }
+
+  /* Mobile Modal Symmetry & Touch Optimizations */
+  #login {
+    padding: max(12px, env(safe-area-inset-top, 12px)) max(12px, env(safe-area-inset-right, 12px)) max(12px, env(safe-area-inset-bottom, 12px)) max(12px, env(safe-area-inset-left, 12px));
+  }
+  #lf, #lcf {
+    padding: 24px 20px; border-radius: var(--radius-xl); width: 100%; max-width: 100%; margin: auto;
+  }
+  #adm, #newChanModal, #devm {
+    padding: max(12px, env(safe-area-inset-top, 12px)) max(12px, env(safe-area-inset-right, 12px)) max(12px, env(safe-area-inset-bottom, 12px)) max(12px, env(safe-area-inset-left, 12px));
+  }
+  .adm-box {
+    border-radius: var(--radius-xl); width: 100%; max-width: 100%;
+    height: min(640px, calc(100dvh - 24px)); margin: auto;
+  }
+  #newChanModal .adm-box, #devm .adm-box {
+    max-height: calc(100dvh - 24px); max-width: 100%;
+  }
+  .adm-head { padding: 13px 16px; }
+  .adm-body { padding: 16px; gap: 13px; }
+  #avf { padding: 24px 18px; }
+  .adm-metrics { grid-template-columns: 1fr; gap: 8px; }
+  .grid { grid-template-columns: 1fr; gap: 8px; }
+  .prof-hero { padding: 20px 16px 18px; gap: 8px; }
+}
 </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sonner@2.0.7/dist/style.css" />
 </head>
 <body>
-<div id="login"><form id="lf"><h1 id="lt">Echidna System</h1><input id="nm" placeholder="Nama kamu" maxlength="20" autocomplete="off" autocapitalize="off" enterkeyhint="go"><input id="pw" type="password" placeholder="Password" autocomplete="off" enterkeyhint="go"><button>Masuk</button><div style="display:flex;justify-content:center;margin-top:4px"><button type="button" id="lcodebtn" class="ghost" style="background:transparent;border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:10px">Masuk pakai kode perangkat</button></div><p id="le"></p></form>
-<form id="lcf" hidden><h1>Echidna System</h1><input id="lcode" placeholder="Kode perangkat 6 digit" maxlength="6" autocomplete="off" enterkeyhint="go"><button type="button" id="lcodego">Masuk</button><div style="display:flex;justify-content:center;margin-top:4px"><button type="button" id="lcback" class="ghost" style="background:transparent;border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:10px">Kembali</button></div><p id="lce"></p></form></div>
-<div id="adm" hidden>
-  <form id="avf"><h2>Admin Panel</h2><input id="apw" type="password" placeholder="Password admin" autocomplete="off"><button>Verifikasi</button><p id="ae"></p></form>
-  <form id="apf" hidden>
-    <h2>Admin Panel</h2>
-    <div class="arow"><span class="chip" id="aonline">Online: 0</span><span class="chip" id="aret">Retention: 48m</span></div>
-    <h3>Durasi hapus otomatis (menit)</h3>
-    <div class="arow"><input id="rmin" type="number" min="1" max="10080" value="48"><button id="rsave" type="button">Simpan</button></div>
-    <p id="re"></p>
-    <h3>Anti-spam & Performa</h3>
-    <div class="grid">
-      <div><label class="albl">Spam Max / 10s</label><input id="c_spamMax" type="number" min="1" max="50"></div>
-      <div><label class="albl">Spam Window (ms)</label><input id="c_spamWin" type="number" min="1000" max="60000"></div>
-      <div><label class="albl">Typing Throttle (ms)</label><input id="c_typ" type="number" min="200" max="10000"></div>
-      <div><label class="albl">Admin Session TTL (ms)</label><input id="c_admttl" type="number" min="60000" max="3600000"></div>
+
+<!-- Login View -->
+<div id="login">
+  <form id="lf">
+    <div class="login-hd">
+      <h1 id="lt">Echidna System</h1>
+      <p>Masuk ke chat lokal yang aman & efisien</p>
     </div>
-    <div class="arow"><button id="csave" type="button">Simpan Pengaturan</button></div>
-    <p id="ce"></p>
-    <div class="sep"></div>
-    <h3>Ban / Unban Pengguna</h3>
-    <div class="arow"><input id="bname" placeholder="Nama user" maxlength="20"><input id="breason" placeholder="Alasan (opsional)"><button id="bban" type="button" class="warn">Ban</button></div>
-    <div class="list" id="blist"></div>
-    <p id="be"></p>
-    <div class="sep"></div>
-    <h3>Bot Auto-Send (Auto Message)</h3>
-    <div class="grid">
-      <div><label class="albl">Nama Bot (username)</label><input id="bname_bot" placeholder="Nama bot, contoh: Alice" maxlength="20"></div>
-      <div><label class="albl">Aktif</label><select id="benabled"><option value="1">Ya</option><option value="0">Tidak</option></select></div>
-      <div><label class="albl">Jam (0-23)</label><input id="bhour" type="number" min="0" max="23" value="9"></div>
-      <div><label class="albl">Menit (0-59)</label><input id="bminute" type="number" min="0" max="59" value="0"></div>
-      <div><label class="albl">Hari</label><input id="bdays" placeholder="* atau mon,tue,wed,thu,fri,sat,sun"></div>
-      <div><label class="albl">Chat Tujuan</label><input id="bchat" placeholder="general atau nama user"></div>
-      <div><label class="albl">Urutan (pos)</label><input id="bpos" type="number" min="0" value="0"></div>
+    <input id="nm" placeholder="Nama panggilan kamu" maxlength="20" autocomplete="off" autocapitalize="off" enterkeyhint="go">
+    <input id="pw" type="password" placeholder="Password sistem" autocomplete="off" enterkeyhint="go">
+    <button type="submit">Masuk ke Chat</button>
+    <div style="display:flex;justify-content:center;margin-top:4px">
+      <button type="button" id="lcodebtn" class="btn ghost" style="font-size:13px;padding:8px 14px">Masuk pakai kode perangkat</button>
     </div>
-    <div><label class="albl">Pesan</label><textarea id="btext" rows="2" placeholder="Pesan yang akan dikirim otomatis"></textarea></div>
-    <div class="arow"><button id="badd" type="button">Tambah Bot</button><button id="bsave" type="button" class="ghost" disabled>Simpan Perubahan</button><button id="bcancel" type="button" class="ghost" hidden>Batal</button></div>
-    <div class="list" id="botlist"></div>
-    <p id="bmsg"></p>
-    <div class="sep"></div>
-    <h3>Export Chat</h3>
-    <div class="arow"><input id="exchat" placeholder="Nama chat / general" value="general"><button id="exjson" type="button">Export JSON</button><button id="extxt" type="button" class="ghost">Export TXT</button><button id="exall" type="button" class="ghost">Export Semua (JSON)</button></div>
-    <div class="sep"></div>
-    <h3>Reset Data</h3>
-    <div class="arow"><button id="rall" type="button" class="danger">Reset Semua Chat</button></div>
-    <p id="rx"></p>
-    <div class="sep"></div>
-    <h3>Ganti Password</h3>
-    <input id="npw" type="password" placeholder="Password baru" autocomplete="off">
-    <button id="psave">Simpan Password</button><p id="pe"></p>
-    <div class="arow"><button id="aclose" type="button" class="ghost">Tutup</button></div>
+    <p id="le"></p>
   </form>
-</div>
-<div id="devm" hidden>
-  <form id="dvf"><h2>Perangkat Terhubung</h2>
-    <p class="bmeta">Verifikasi sederhana: buat kode 6 digit di perangkat ini, lalu masukkan kode tersebut di perangkat lain.</p>
-    <div class="sep"></div>
-    <h3>Buat kode untuk perangkat lain</h3>
-    <div class="arow"><input id="dname" placeholder="Nama akun" value="" maxlength="20"><button id="dgen" type="button">Buat Kode</button></div>
-    <p id="dout" class="bmeta"></p>
-    <div class="sep"></div>
-    <h3>Gabung perangkat ini ke akun</h3>
-    <div class="arow"><input id="dcode" placeholder="Kode 6 digit" maxlength="6"><button id="dver" type="button">Verifikasi & Masuk</button></div>
-    <p id="derr" class="bmeta"></p>
-    <div class="arow"><button id="dclose" type="button" class="ghost">Tutup</button></div>
+
+  <form id="lcf" hidden>
+    <div class="login-hd">
+      <h1>Hubungkan Perangkat</h1>
+      <p>Masukkan 6 digit kode dari perangkat utama</p>
+    </div>
+    <input id="lcode" placeholder="6 digit kode" maxlength="6" autocomplete="off" enterkeyhint="go" style="text-align:center;font-size:20px;letter-spacing:4px">
+    <button type="button" id="lcodego">Verifikasi & Masuk</button>
+    <div style="display:flex;justify-content:center;margin-top:4px">
+      <button type="button" id="lcback" class="btn ghost" style="font-size:13px;padding:8px 14px">Kembali</button>
+    </div>
+    <p id="lce"></p>
   </form>
 </div>
 
-<div id="app">
-  <aside id="side">
-    <header>
-      <div class="hd"><h1 id="ht">Echidna<span class="sub" id="who"></span><span class="chip" id="sonline">0 online</span></h1>
-        <div class="hgrp">
-          <button id="snd" class="ib" aria-label="Suara notifikasi"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 9v6h4l5 5V4L9 9H5" fill="currentColor"/><path d="M14.5 8.5a6 6 0 0 1 0 7M17 7a9 9 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
-          <button id="tg" class="ib" aria-label="Ganti tema"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
-          <button id="hb" class="ib" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-          <div id="menu" hidden>
-            <button id="madmin"><div class="mico"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3l7 3v5c0 5-3.5 7.5-7 10-3.5-2.5-7-5-7-10V6l7-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Admin Panel</button>
-            <button id="mexpall"><div class="mico"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Export Semua Chat (JSON)</button>
-            <div class="sep"></div>
-            <button id="mdev"><div class="mico"><svg viewBox="0 0 24 24" width="18" height="18"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/></svg></div>Perangkat terhubung</button>
-            <div class="sep"></div>
-            <button id="lo" class="danger"><div class="mico"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M15 12H5m0 0 4-4m-4 4 4 4M13 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Keluar</button>
+<!-- Modal Buat Channel Baru -->
+<div id="newChanModal" hidden>
+  <div class="adm-box">
+    <div class="adm-head">
+      <h2><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>Buat Channel Baru</h2>
+      <button id="newChanClose" class="ib" aria-label="Tutup"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+    <form id="newChanForm" class="adm-body">
+      <p class="bmeta">Kanal publik dapat diikuti oleh semua anggota jaringan lokal.</p>
+      <div>
+        <label class="albl">Nama Kanal (huruf kecil/angka/tanda hubung)</label>
+        <input id="newChanName" placeholder="contoh: dev, diskusi, game" maxlength="20" required autocomplete="off">
+      </div>
+      <div>
+        <label class="albl">Topik / Deskripsi Singkat</label>
+        <input id="newChanTopic" placeholder="contoh: Diskusi seputar teknis proyek" maxlength="100">
+      </div>
+      <button type="submit" class="btn" style="margin-top:6px">Buat Kanal Sekarang</button>
+      <p id="newChanErr" class="msg-status"></p>
+    </form>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div id="cfm" hidden>
+  <div class="cfm-box" role="alertdialog" aria-labelledby="cfmTitle" aria-describedby="cfmMsg">
+    <h3 id="cfmTitle"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span id="cfmTitleTxt">Hapus Pesan?</span></h3>
+    <p class="cfm-msg" id="cfmMsg">Pesan ini akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.</p>
+    <input type="password" class="cfm-input" id="cfmInput" hidden autocomplete="off">
+    <div class="cfm-acts">
+      <button type="button" class="btn ghost" id="cfmCancel">Batal</button>
+      <button type="button" class="btn danger" id="cfmOk">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Modal -->
+<div id="adm" hidden>
+  <div class="adm-box">
+    <div class="adm-head">
+      <h2><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 5-3.5 7.5-7 10-3.5-2.5-7-5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>Admin Panel</h2>
+      <button id="aclose" class="ib" aria-label="Tutup"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+
+    <!-- Login Admin Screen -->
+    <form id="avf">
+      <p class="bmeta">Masukkan password sistem untuk mengakses panel kontrol admin:</p>
+      <input id="apw" type="password" placeholder="Password admin" autocomplete="off">
+      <button class="btn" style="padding:11px">Verifikasi Akses</button>
+      <p id="ae" class="msg-status"></p>
+    </form>
+
+    <!-- Admin Panel Tabs Container -->
+    <div id="apf" hidden style="display:flex;flex-direction:column;flex:1;min-height:0">
+      <div class="adm-nav">
+        <button type="button" class="atab active" data-tab="tab-sys"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Sistem</button>
+        <button type="button" class="atab" data-tab="tab-bans"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Moderasi</button>
+        <button type="button" class="atab" data-tab="tab-bots"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 15h.01M16 15h.01"/></svg>Bot Jadwal</button>
+        <button type="button" class="atab" data-tab="tab-data"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Data & Keamanan</button>
+      </div>
+
+      <div class="adm-body">
+        <!-- Tab 1: Sistem -->
+        <div id="tab-sys" class="tab-pane">
+          <div class="adm-metrics">
+            <div class="metric-card">
+              <div class="metric-icon metric-icon-live">
+                <span class="status-dot"></span>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">Pengguna Terhubung</span>
+                <span class="metric-val" id="aonline">0 online</span>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">Retensi Riwayat</span>
+                <span class="metric-val" id="aret">48 menit</span>
+              </div>
+            </div>
           </div>
+          <h3>Durasi Hapus Otomatis (Menit)</h3>
+          <p class="bmeta">Pesan yang lebih lama dari durasi ini akan otomatis dibersihkan dari server.</p>
+          <div class="arow" style="margin-top:6px">
+            <input id="rmin" type="number" min="1" max="10080" value="48">
+            <button id="rsave" type="button" class="btn">Simpan Durasi</button>
+          </div>
+          <p id="re" class="msg-status"></p>
+
+          <h3 style="margin-top:16px">Anti-Spam & Performa</h3>
+          <div class="grid" style="margin-top:6px">
+            <div><label class="albl">Maks Pesan per Jendela</label><input id="c_spamMax" type="number" min="1" max="50"></div>
+            <div><label class="albl">Jendela Spam (ms)</label><input id="c_spamWin" type="number" min="1000" max="60000"></div>
+            <div><label class="albl">Typing Throttle (ms)</label><input id="c_typ" type="number" min="200" max="10000"></div>
+            <div><label class="albl">Admin Session TTL (ms)</label><input id="c_admttl" type="number" min="60000" max="3600000"></div>
+          </div>
+          <div class="arow" style="margin-top:10px">
+            <button id="csave" type="button" class="btn">Simpan Konfigurasi</button>
+          </div>
+          <p id="ce" class="msg-status"></p>
+        </div>
+
+        <!-- Tab 2: Moderasi -->
+        <div id="tab-bans" class="tab-pane" hidden>
+          <h3>Blokir Pengguna (Ban)</h3>
+          <p class="bmeta">Pengguna yang diblokir akan langsung diputuskan dari server dan tidak bisa masuk.</p>
+          <div class="arow" style="margin-top:8px">
+            <input id="bname" placeholder="Nama pengguna" maxlength="20">
+            <input id="breason" placeholder="Alasan (opsional)">
+            <button id="bban" type="button" class="btn warn">Blokir User</button>
+          </div>
+          <h3 style="margin-top:16px">Daftar Pengguna Diblokir</h3>
+          <div class="list" id="blist" style="margin-top:6px"></div>
+          <p id="be" class="msg-status"></p>
+        </div>
+
+        <!-- Tab 3: Bot Scheduler -->
+        <div id="tab-bots" class="tab-pane" hidden>
+          <h3>Otomatisasi Pesan Bot</h3>
+          <p class="bmeta">Jadwalkan pesan otomatis yang dikirim oleh bot pada jam & hari tertentu.</p>
+          <div class="grid" style="margin-top:8px">
+            <div><label class="albl">Nama Pengirim Bot</label><input id="bname_bot" placeholder="Contoh: Pengingat" maxlength="20"></div>
+            <div><label class="albl">Status Aktif</label><select id="benabled"><option value="1">Aktif</option><option value="0">Nonaktif</option></select></div>
+            <div><label class="albl">Jam (0-23)</label><input id="bhour" type="number" min="0" max="23" value="9"></div>
+            <div><label class="albl">Menit (0-59)</label><input id="bminute" type="number" min="0" max="59" value="0"></div>
+            <div><label class="albl">Chat Tujuan</label><input id="bchat" placeholder="general atau nama user" value="general"></div>
+            <div><label class="albl">Urutan (pos)</label><input id="bpos" type="number" min="0" value="0"></div>
+          </div>
+
+          <div style="margin-top:8px">
+            <label class="albl">Pilih Hari Aktif</label>
+            <div class="day-picker" id="dayPicker">
+              <button type="button" class="dp-chip on" data-day="*">Semua</button>
+              <button type="button" class="dp-chip" data-day="mon">Sen</button>
+              <button type="button" class="dp-chip" data-day="tue">Sel</button>
+              <button type="button" class="dp-chip" data-day="wed">Rab</button>
+              <button type="button" class="dp-chip" data-day="thu">Kam</button>
+              <button type="button" class="dp-chip" data-day="fri">Jum</button>
+              <button type="button" class="dp-chip" data-day="sat">Sab</button>
+              <button type="button" class="dp-chip" data-day="sun">Min</button>
+            </div>
+            <input id="bdays" type="hidden" value="*">
+          </div>
+
+          <div style="margin-top:8px">
+            <label class="albl">Pesan yang Dikirim</label>
+            <textarea id="btext" rows="2" placeholder="Tulis isi pesan otomatis..."></textarea>
+          </div>
+
+          <div class="arow" style="margin-top:10px">
+            <button id="badd" type="button" class="btn">Tambah Bot</button>
+            <button id="bsave" type="button" class="btn ghost" disabled>Simpan Perubahan</button>
+            <button id="bcancel" type="button" class="btn ghost" hidden>Batal</button>
+          </div>
+          <div class="list" id="botlist" style="margin-top:10px"></div>
+          <p id="bmsg" class="msg-status"></p>
+        </div>
+
+        <!-- Tab 4: Data & Keamanan -->
+        <div id="tab-data" class="tab-pane" hidden>
+          <h3>Ekspor Riwayat Chat</h3>
+          <p class="bmeta">Download arsip percakapan dalam format file JSON atau teks biasa.</p>
+          <div class="arow" style="margin-top:8px">
+            <input id="exchat" placeholder="Nama chat / general" value="general">
+            <button id="exjson" type="button" class="btn">Ekspor JSON</button>
+            <button id="extxt" type="button" class="btn ghost">Ekspor TXT</button>
+            <button id="exall" type="button" class="btn ghost">Ekspor Semua (JSON)</button>
+          </div>
+
+          <h3 style="margin-top:20px">Ganti Password Sistem</h3>
+          <p class="bmeta">Password ini digunakan untuk autentikasi user dan akses admin.</p>
+          <div class="arow" style="margin-top:8px">
+            <input id="npw" type="password" placeholder="Password baru (min 6 karakter)" autocomplete="off">
+            <button id="psave" type="button" class="btn">Simpan Password Baru</button>
+          </div>
+          <p id="pe" class="msg-status"></p>
+
+          <h3 style="margin-top:20px;color:var(--danger)">Area Berbahaya</h3>
+          <p class="bmeta">Menghapus seluruh pesan dan riwayat chat secara permanen.</p>
+          <div class="arow" style="margin-top:8px">
+            <button id="rall" type="button" class="btn danger">Hapus & Reset Semua Chat</button>
+          </div>
+          <p id="rx" class="msg-status"></p>
         </div>
       </div>
-      <input id="search" type="search" placeholder="Cari" autocomplete="off" enterkeyhint="search">
+    </div>
+  </div>
+</div>
+
+<!-- Device Pin Modal -->
+<div id="devm" hidden>
+  <div class="adm-box">
+    <div class="adm-head">
+      <h2><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/></svg>Perangkat Terhubung</h2>
+      <button id="dclose" class="ib" aria-label="Tutup"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+    <div class="adm-body">
+      <p class="bmeta">Buat kode 6 digit di perangkat ini, lalu masukkan di HP / laptop lain untuk langsung masuk tanpa password.</p>
+      <h3>Buat Kode untuk Perangkat Baru</h3>
+      <div class="arow">
+        <input id="dname" placeholder="Nama akun" readonly>
+        <button id="dgen" type="button" class="btn">Buat Kode</button>
+      </div>
+      <p id="dout" class="bmeta" style="font-weight:600;color:var(--acc-text)"></p>
+
+      <h3 style="margin-top:14px">Gabungkan Perangkat Ini ke Akun Lain</h3>
+      <div class="arow">
+        <input id="dcode" placeholder="Kode 6 digit" maxlength="6">
+        <button id="dver" type="button" class="btn">Verifikasi</button>
+      </div>
+      <p id="derr" class="msg-status"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Profil Pengguna -->
+<!-- Image Lightbox Modal -->
+<div id="lightbox" hidden>
+  <button class="lightbox-close" id="lightboxClose" aria-label="Tutup"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+  <img id="lightboxImg" src="" alt="Gambar Pembesar">
+</div>
+
+<!-- Main App Layout -->
+<div id="app">
+  <div id="chatview">
+  <aside id="side">
+    <header>
+      <div class="hd">
+        <h1 id="ht">
+          <span>Echidna</span>
+          <span class="sub" id="who"></span>
+          <span class="status-pill is-zero" id="sonline" title="Pengguna online di jaringan lokal"><span class="status-dot"></span><span class="status-txt">0 online</span></span>
+        </h1>
+      </div>
+      <div id="search-wrap">
+        <svg class="search-ico" viewBox="0 0 24 24" width="16" height="16"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="search" type="search" placeholder="Cari kontak atau kanal..." autocomplete="off">
+        <kbd class="search-kbd" id="searchKbd">Ctrl K</kbd>
+      </div>
     </header>
+
     <div id="net"><i class="spin"></i>Menyambung ulang…</div>
+
+    <!-- Section Kanal -->
+    <div class="s-section">
+      <span>Kanal Percakapan</span>
+      <button type="button" class="s-add-btn" id="addChanBtn">+ Buat</button>
+    </div>
+    <div id="chanList" style="padding:0 8px"></div>
+
+    <!-- Section Pesan Langsung -->
+    <div class="s-section" style="margin-top:6px">
+      <span>Pesan Langsung</span>
+    </div>
     <div id="list"></div>
   </aside>
+
   <main id="main">
     <div id="top">
-      <button id="back" aria-label="Kembali"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button id="back" aria-label="Kembali"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M15 19l-7-7 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <div id="tav" class="av"></div>
       <div class="meta"><div id="tn" class="name"></div><div id="ts" class="time"></div></div>
       <div class="hgrp" style="margin-left:auto">
-        <button id="cexp" class="ib" aria-label="Export chat ini"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 5v10m0 0 4-4m-4 4-4-4M6 19h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button id="cdot" class="ib" aria-label="Opsi chat"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+        <button id="csearchBtn" class="ib" aria-label="Cari isi pesan"><svg viewBox="0 0 24 24" width="19" height="19"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        <button id="cexp" class="ib" aria-label="Export chat ini"><svg viewBox="0 0 24 24" width="19" height="19"><path d="M12 5v10m0 0 4-4m-4 4-4-4M6 19h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button id="cdot" class="ib" aria-label="Opsi chat"><svg viewBox="0 0 24 24" width="19" height="19"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
         <div id="cmenu" hidden>
-          <button id="cjson"><div class="mico"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 5v10m0 0 4-4m-4 4-4-4M6 19h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Export JSON (Chat ini)</button>
-          <button id="ctxt"><div class="mico"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 5v10m0 0 4-4m-4 4-4-4M6 19h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Export TXT (Chat ini)</button>
+          <button id="cjson"><div class="mico"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 5v10m0 0 4-4m-4 4-4-4M6 19h12" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>Export JSON (Chat ini)</button>
+          <button id="ctxt"><div class="mico"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 5v10m0 0 4-4m-4 4-4-4M6 19h12" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>Export TXT (Chat ini)</button>
         </div>
       </div>
     </div>
-    <div id="mw"><div id="msgs"></div><button id="down" aria-label="Ke bawah"><span id="dn" hidden></span><svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-    <form id="bar"><textarea id="txt" rows="1" placeholder="Tulis pesan" enterkeyhint="send"></textarea><button id="send" aria-label="Kirim"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 20v-6l8-2-8-2V4l19 8z"/></svg></button></form>
-    <div id="empty">Select a chat to start<br><small style="opacity:.8">Chats will be deleted automatically depending on your settings.</small></div>
-  </main>
-</div>
-<script>const $=s=>document.querySelector(s),LS=(()=>{try{return localStorage}catch{return {}}})();
-const h=(t,c,x,...k)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;e.append(...k);return e};
-const rnd=()=>[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
-const mob=()=>matchMedia('(max-width:700px)').matches;
-let name=LS.name||'',token=LS.token||(LS.token=rnd()),pw=LS.pw||'';
-let ws,ct,cur=null,users=new Map(),last=new Map(),msgs=new Map(),unread={},approx=new Set(),typ={},typT={};
-let lastDay='',lastWho='',lastEl=null,lastTs=0,tsent=0,miss=0,raf=0,errBox=null;
-let cfg={retentionMin:48,spamMax:6,spamWin:10000,typingThrottle:1500,adminTTL:600000,online:0};
-let adminPw=null,adminExp=0,onlineCount=0;
-const lastRead=JSON.parse(LS.lastRead||'{}'),items=new Map();
-const txt=$('#txt');
-const hhmm=t=>new Date(t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-const dkey=t=>new Date(t).toDateString();
-const stamp=t=>dkey(t)===dkey(Date.now())?hhmm(t):new Date(t).toLocaleDateString([],{day:'2-digit',month:'2-digit'});
-const dayLabel=t=>{const d=dkey(t),n=Date.now();return d===dkey(n)?'Hari ini':d===dkey(n-864e5)?'Kemarin':new Date(t).toLocaleDateString([],{day:'numeric',month:'long',year:'numeric'})};
-const hue=n=>{let x=0;for(const c of n)x=(x*31+c.charCodeAt(0))%360;return x};
-const cid=m=>m.chat==='general'?'general':(m.chat.split('|').find(x=>x!==name)||name);
-const send=o=>ws?.readyState===1&&ws.send(JSON.stringify(o));
-const dots=()=>h('span','dots',null,h('i'),h('i'),h('i'));
-const BIG=/^(?:\p{Extended_Pictographic}\uFE0F?\s*){1,3}$/u;
-const isAdminValid=()=>adminPw&&Date.now()<adminExp;
-function saveAdmin(pw,exp){adminPw=pw;adminExp=exp;}
-function clearAdmin(){adminPw=null;adminExp=0}
-function beep(){try{const C=new (window.AudioContext||window.webkitAudioContext)();const o=C.createOscillator(),g=C.createGain();o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(0,C.currentTime);g.gain.linearRampToValueAtTime(.08,C.currentTime+.01);g.gain.exponentialRampToValueAtTime(.0001,C.currentTime+.18);o.connect(g);g.connect(C.destination);o.start();o.stop(C.currentTime+.2);setTimeout(()=>C.close(),250);}catch{}}
-let soundEnabled=(LS.soundEnabled||'1')!=='0';
-function updateSoundIcon(){const s=$('#snd');s.style.color=soundEnabled?'var(--acc)':'var(--mute)'}
-$('#snd').onclick=()=>{soundEnabled=!soundEnabled;LS.soundEnabled=soundEnabled?'1':'0';updateSoundIcon();if(soundEnabled)beep()}
-updateSoundIcon();
-function syncSonnerTheme(){
-  const t = root.dataset.theme || (matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");
-  const el=document.getElementById("sonner-toaster");
-  if(el) el.setAttribute("data-theme", t==="dark"?"dark":"light");
-}
-const toast = (msg,type="info",opts={})=>{
-  try{
-    if(window.sonner && sonner.toast){
-      const fn = sonner.toast[type] || sonner.toast;
-      fn(msg,{duration:3000,...opts});
-    }else console.log("[toast]",type,msg);
-  }catch(e){}
-};
-syncSonnerTheme();
 
-function notify(){if(!document.hidden||!soundEnabled)return;beep();if(navigator.vibrate)try{navigator.vibrate(40)}catch{}}
-function avatar(el,n){if(n==='general'){el.textContent='#';el.style.background='var(--acc)';el.style.color='var(--acc-t)'}else{const x=hue(n);el.textContent=[...n][0].toUpperCase();el.style.background=`linear-gradient(135deg,hsl(${x} 40% 60%),hsl(${(x+30)%360} 42% 47%))`;el.style.color='#fff'}}
-function linkify(s){const f=document.createDocumentFragment(),re=/https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]/g;let i=0,m;while((m=re.exec(s))){if(m.index>i)f.append(s.slice(i,m.index));const a=h('a',null,m[0]);a.href=m[0];a.target='_blank';a.rel='noopener noreferrer';f.append(a);i=re.lastIndex;}if(i<s.length)f.append(s.slice(i));return f;}
-function markRead(c){const m=last.get(c);if(m){lastRead[c]=m.id;LS.lastRead=JSON.stringify(lastRead)}}
-function title(){const n=Object.values(unread).reduce((a,b)=>a+b,0);document.title=(n?`(${n}) `:'')+'Echidna System'}
-function layout(){const m=mob();$('#main').inert=m&&!cur;$('#side').inert=m&&!!cur;document.body.classList.toggle('chat',m&&!!cur)}
-function item(id){let o=items.get(id);if(o)return o;const av=h('div','av');avatar(av,id);const tm=h('span','time'),pv=h('span','prev'),bd=h('span','badge');bd.hidden=true;const el=h('div','item',null,av,h('div','meta',null,h('div','row',null,h('span','name',id==='general'?'Umum':id),tm),h('div','row',null,pv,bd)));el.onclick=()=>open(id);o={el,av,tm,pv,bd};items.set(id,o);return o;}
-function renderList(){const f=$('#search').value.trim().toLowerCase(),L=$('#list');const ids=['general',...[...users.keys()].filter(n=>n!==name)].filter(n=>!f||n.toLowerCase().includes(f)||(n==='general'&&'umum'.includes(f)));ids.sort((a,b)=>(last.get(b)?.id||0)-(last.get(a)?.id||0)||(a==='general'?-1:b==='general'?1:a.localeCompare(b)));const keep=new Set(ids);for(const [id,o] of items)if(!keep.has(id))o.el.remove();ids.forEach((id,i)=>{const o=item(id),m=last.get(id),n=unread[id]||0,ty=typ[id];o.el.classList.toggle('on',id===cur);o.av.classList.toggle('dot',id!=='general'&&!!users.get(id)?.online);o.tm.textContent=m?stamp(m.ts):'';o.pv.classList.toggle('hl',!!ty);if(ty){o.pv.textContent=(id==='general'?ty+' ':'')+'mengetik';o.pv.append(dots())}else o.pv.textContent=m?(m.sender===name?'Kamu: ':id==='general'?m.sender+': ':'')+m.text:'';if(n){const t=n+(approx.has(id)?'+':'');if(o.bd.textContent!==t){o.bd.textContent=t;o.bd.classList.remove('pop');void o.bd.offsetWidth;o.bd.classList.add('pop')}o.bd.hidden=false;}else o.bd.hidden=true;if(L.children[i]!==o.el)L.insertBefore(o.el,L.children[i]||null);});}
-function renderHead(){if(!cur)return;const ts=$('#ts'),u=users.get(cur),ty=typ[cur];$('#tn').textContent=cur==='general'?'Umum':cur;avatar($('#tav'),cur);$('#tav').classList.toggle('dot',cur!=='general'&&!!u?.online);ts.textContent='';ts.classList.toggle('hl',!!ty||(cur!=='general'&&!!u?.online));if(ty)ts.append((cur==='general'?ty+' ':'')+'mengetik',dots());else if(cur==='general')ts.append([...users.values()].filter(x=>x.online).length+' online');else ts.append(u?.online?'online':'terakhir dilihat '+(u?stamp(u.last_seen):'-'));}
-const dist=()=>{const b=$('#msgs');return b.scrollHeight-b.scrollTop-b.clientHeight};
-const toBottom=sm=>{const b=$('#msgs');b.scrollTo({top:b.scrollHeight,behavior:sm?'smooth':'auto'})};
-function fab(){$('#down').classList.toggle('show',dist()>240);const d=$('#dn');d.textContent=miss||'';d.hidden=!miss}
-$('#msgs').addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;if(dist()<80)miss=0;fab()})},{passive:true});
-$('#down').onclick=()=>{miss=0;toBottom(true)};
-function addMsg(m,parent,anim){const box=$('#msgs'),d=dkey(m.ts),mine=m.sender===name;if(parent===box&&box.firstElementChild?.classList.contains('hint'))box.firstElementChild.remove();if(d!==lastDay){parent.append(h('div','day',dayLabel(m.ts)));lastDay=d;lastWho='';lastEl=null}const g=!!lastEl&&m.sender===lastWho&&m.ts-lastTs<300000;const e=h('div','m'+(mine?' me':'')+(g?' g':'')+(anim?' new':'')+(BIG.test(m.text)?' big':''));if(g)lastEl.classList.add('gp');if(cur==='general'&&!mine&&!g){const w=h('div','who',m.sender);w.style.color=`hsl(${hue(m.sender)} 45% 55%)`;e.append(w)}const x=h('span','x');x.append(linkify(m.text));e.append(x,h('span','t',hhmm(m.ts)));parent.append(e);lastWho=m.sender;lastEl=e;lastTs=m.ts;}
-function renderMsgs(){const box=$('#msgs'),fr=document.createDocumentFragment(),arr=msgs.get(cur);lastDay=lastWho='';lastEl=null;lastTs=0;if(arr){arr.forEach(m=>addMsg(m,fr,false));if(!arr.length){const hnt=h('div','hint');hnt.innerHTML='No messages yet.<br>Chats will be deleted automatically depending on your settings.';fr.append(hnt)}}box.replaceChildren(fr);box.scrollTop=box.scrollHeight;miss=0;fab();}
-function open(id){cur=id;unread[id]=0;approx.delete(id);markRead(id);title();$('#main').classList.add('open');document.body.classList.add('chat');if(mob()){history.state?.c?history.replaceState({c:id},''):history.pushState({c:id},'')}renderHead();renderMsgs();renderList();layout();send({t:'hist',chat:id});const mw=$('#mw');mw.classList.remove('swap');void mw.offsetWidth;mw.classList.add('swap');if(!mob())txt.focus();closeCMenu();closeMenu();}
-function close(){cur=null;document.body.classList.remove('chat');if(!mob())$('#main').classList.remove('open');layout();renderList();closeCMenu();}
-$('#back').onclick=()=>{if(mob()){history.replaceState({},'');close()}else{close()}}
-addEventListener('popstate',e=>{if(mob()){if(cur&&!e.state?.c){close();history.replaceState({},'');}else if(!cur&&e.state?.c){open(e.state.c)} } else if(!e.state?.c&&cur) close();},{passive:true});
-matchMedia('(max-width:700px)').addEventListener('change',layout);
-$('#search').oninput=renderList;
-$('#tg').onclick=()=>theme(root.dataset.theme==='dark'?'light':'dark');
-const menu=$('#menu'),cmenu=$('#cmenu'),closeMenu=()=>menu.hidden=true,closeCMenu=()=>cmenu.hidden=true;
-$('#hb').onclick=e=>{e.stopPropagation();closeCMenu();menu.hidden=!menu.hidden};
-$('#cdot').onclick=e=>{e.stopPropagation();closeMenu();cmenu.hidden=!cmenu.hidden};
-$('#cexp').onclick=e=>{e.stopPropagation();closeMenu();cmenu.hidden=!cmenu.hidden};
-document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)&&!$('#hb').contains(e.target))closeMenu();if(!cmenu.hidden&&!cmenu.contains(e.target)&&!$('#cdot').contains(e.target)&&!$('#cexp').contains(e.target))closeCMenu()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMenu();closeCMenu();$('#adm').hidden=true}});
-{
-  const mn=$('#main');let sx=0,sy=0,dx=0,drag=false;
-  mn.addEventListener('touchstart',e=>{if(!mob()||!cur)return;const t=e.touches[0];if(t.clientX>28)return;sx=t.clientX;sy=t.clientY;dx=0;drag=true;mn.style.transition='none'},{passive:true});
-  mn.addEventListener('touchmove',e=>{if(!drag)return;const t=e.touches[0];dx=Math.max(0,t.clientX-sx);if(dx<12&&Math.abs(t.clientY-sy)>24){drag=false;mn.style.transition='';mn.style.transform='';return}mn.style.transform=`translateX(${dx}px)`},{passive:true});
-  const end=()=>{if(!drag)return;drag=false;mn.style.transition='';mn.style.transform='';if(dx>90)$('#back').onclick()};
-  mn.addEventListener('touchend',end,{passive:true});mn.addEventListener('touchcancel',end,{passive:true});
+    <!-- Search in Message History bar -->
+    <div id="csearchBar" hidden>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l4 4"/></svg>
+      <input id="csearchInput" placeholder="Cari dalam pesan percakapan ini..." autocomplete="off">
+      <span id="csearchCount"></span>
+      <button type="button" class="close-btn" id="csearchClose"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+
+    <div id="mw">
+      <div id="msgs"></div>
+      <button id="down" aria-label="Ke bawah"><span id="dn" hidden></span><svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div id="dragDropOverlay" hidden>
+        <div class="dd-box">
+          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Lepaskan gambar untuk mengirim</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Replying Preview Bar -->
+    <div id="replyBar" hidden>
+      <div class="rline"></div>
+      <div class="rcontent">
+        <span id="replyWho">Balas pesan</span>
+        <span id="replyText">Isi pesan...</span>
+      </div>
+      <button type="button" class="close-btn" id="replyCancel" aria-label="Batal balas"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+
+    <!-- Media Preview Bar -->
+    <div id="imgPreviewBar" hidden>
+      <img id="imgPreviewThumb" src="" alt="Thumbnail">
+      <div class="preview-info">
+        <span id="imgPreviewName">gambar.png</span>
+        <span id="imgPreviewStatus">Lampiran gambar</span>
+      </div>
+      <button type="button" class="close-btn" id="imgPreviewCancel" aria-label="Batal upload"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form id="bar">
+      <input type="file" id="mediaInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+      <button type="button" id="attachBtn" class="ib" aria-label="Kirim gambar" style="flex:none"><svg viewBox="0 0 24 24" width="21" height="21"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <textarea id="txt" rows="1" placeholder="Tulis pesan..." enterkeyhint="send"></textarea>
+      <button id="send" aria-label="Kirim"><svg viewBox="0 0 24 24" width="19" height="19"><path fill="currentColor" d="M3 20v-6l8-2-8-2V4l19 8z"/></svg></button>
+    </form>
+
+    <!-- Empty State -->
+    <div id="empty">
+      <div class="empty-ico"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <h3>Pilih Obrolan untuk Memulai</h3>
+      <p>Pesan otomatis dihapus sesuai batas retensi server. Privasi terjaga & ringan di perangkat.</p>
+    </div>
+  </main>
+  </div>
+
+  <section id="viewSettings" class="view" hidden aria-label="Pengaturan">
+    <header class="view-head"><h2>Pengaturan</h2></header>
+    <div class="view-body">
+      <div class="set-group">
+        <label class="albl">Tampilan</label>
+        <div class="set-card">
+          <button class="set-row" id="setTheme" type="button">
+            <span class="set-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></span>
+            <span class="set-meta"><span class="set-label">Tema tampilan</span><span class="set-sub">Terang atau gelap</span></span>
+            <span class="set-val" id="setThemeVal">Mode Terang</span>
+          </button>
+          <button class="set-row" id="setSound" type="button">
+            <span class="set-ico"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M5 9v6h4l5 5V4L9 9H5" fill="currentColor"/><path d="M14.5 8.5a6 6 0 0 1 0 7M17 7a9 9 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <span class="set-meta"><span class="set-label">Suara notifikasi</span><span class="set-sub">Nada dering saat ada pesan baru</span></span>
+            <span class="set-val" id="setSoundVal">Aktif</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <label class="albl">Perangkat</label>
+        <div class="set-card">
+          <button class="set-row" id="mdev" type="button">
+            <span class="set-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/></svg></span>
+            <span class="set-meta"><span class="set-label">Hubungkan perangkat</span><span class="set-sub">Masuk dengan kode di HP atau PC lain</span></span>
+            <span class="set-chev"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <label class="albl">Admin</label>
+        <div class="set-card">
+          <button class="set-row" id="madmin" type="button">
+            <span class="set-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 5-3.5 7.5-7 10-3.5-2.5-7-5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <span class="set-meta"><span class="set-label">Panel admin</span><span class="set-sub">Retensi, ban, bot, dan konfigurasi</span></span>
+            <span class="set-chev"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </button>
+          <button class="set-row" id="mexpall" type="button">
+            <span class="set-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg></span>
+            <span class="set-meta"><span class="set-label">Export semua chat</span><span class="set-sub">Unduh seluruh riwayat sebagai JSON</span></span>
+            <span class="set-chev"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="viewProfile" class="view" hidden aria-label="Profil">
+    <header class="view-head"><h2>Profil</h2></header>
+    <div class="view-body">
+      <div class="prof-hero">
+        <div class="prof-av-wrap" id="profAvWrap" title="Klik untuk mengganti foto profil">
+          <div id="profAv" class="prof-av"></div>
+          <button type="button" id="profAvUploadBtn" class="prof-av-badge" title="Pilih foto profil" aria-label="Ganti foto profil">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </button>
+          <input type="file" id="profAvatarInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+        </div>
+        <h3 id="profName" class="prof-name"></h3>
+        <div class="prof-meta">
+          <span class="status-online"><span class="dot-online"></span>Online</span>
+          <span class="prof-role">Akun Lokal</span>
+        </div>
+        <div class="prof-av-actions">
+          <button type="button" id="profChangePhotoBtn" class="btn-subtle" title="Unggah foto profil dari perangkat">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Ganti Foto
+          </button>
+          <button type="button" id="profRemovePhotoBtn" class="btn-subtle btn-danger-subtle" title="Hapus foto dan gunakan inisial nama" hidden>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Hapus
+          </button>
+        </div>
+        <span class="prof-av-tip">JPG, PNG, atau WebP · maks 3MB</span>
+      </div>
+
+      <div class="set-group">
+        <label class="albl" for="profBio">Bio</label>
+        <div class="set-card card-body">
+          <input id="profBio" class="card-input" type="text" maxlength="80" placeholder="Deskripsi singkat tentang kamu (maks 80 karakter)" autocomplete="off">
+          <div class="card-actions">
+            <span id="profBioStatus" class="msg-status"></span>
+            <button id="profBioSave" type="button" class="btn">Simpan Bio</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <label class="albl">Keamanan</label>
+        <div class="set-card card-body">
+          <p class="card-hint">Perbarui password yang dipakai untuk masuk ke akun ini.</p>
+          <div class="grid">
+            <div>
+              <label class="albl">Password Baru</label>
+              <div class="pw-field">
+                <input id="profNewPw" type="password" class="card-input" placeholder="Minimal 6 karakter" autocomplete="new-password">
+                <button type="button" class="pw-toggle" aria-label="Tampilkan password" aria-pressed="false">
+                  <svg class="i-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="i-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="albl">Konfirmasi Password</label>
+              <div class="pw-field">
+                <input id="profConfPw" type="password" class="card-input" placeholder="Ulangi password" autocomplete="new-password">
+                <button type="button" class="pw-toggle" aria-label="Tampilkan password" aria-pressed="false">
+                  <svg class="i-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="i-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <span id="profPwStatus" class="msg-status"></span>
+            <button id="profChangePwBtn" type="button" class="btn">Perbarui Password</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <label class="albl">Sesi</label>
+        <div class="set-card">
+          <button class="set-row danger" id="lo" type="button">
+            <span class="set-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12H5m0 0 4-4m-4 4 4 4M13 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5"/></svg></span>
+            <span class="set-meta"><span class="set-label">Keluar</span><span class="set-sub">Akhiri sesi di perangkat ini</span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <nav id="tabbar" aria-label="Navigasi utama">
+    <button class="tab on" type="button" id="tabChat" data-tab="chat" aria-selected="true">
+      <span class="tab-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+      <span>Obrolan</span>
+    </button>
+    <button class="tab" type="button" id="tabSettings" data-tab="settings" aria-selected="false">
+      <span class="tab-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6.5" x2="20" y2="6.5"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17.5" x2="20" y2="17.5"/><circle cx="9" cy="6.5" r="2.3" style="fill:var(--panel)"/><circle cx="15" cy="12" r="2.3" style="fill:var(--panel)"/><circle cx="8" cy="17.5" r="2.3" style="fill:var(--panel)"/></svg></span>
+      <span>Pengaturan</span>
+    </button>
+    <button class="tab" type="button" id="tabProfile" data-tab="profile" aria-selected="false">
+      <span class="tab-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      <span>Profil</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
-if(window.visualViewport){const vv=visualViewport,f=()=>{if(vv.scale>1)return;root.style.setProperty('--vh',vv.height+'px');if(vv.offsetTop)scrollTo(0,0)};vv.addEventListener('resize',()=>{const near=dist()<150;f();if(near)toBottom(false)});vv.addEventListener('scroll',f);f();}
-function dl(name,txt,type='application/json'){const a=document.createElement('a');const b=new Blob([txt],{type});a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},0);}
-function exportChatJSON(c){const arr=msgs.get(c)||[];const data={exportedAt:Date.now(),chat:c,count:arr.length,retentionMin:cfg.retentionMin,rows:arr};dl(`echidna-chat-${String(c).replace(/\|/g,'_')}-${new Date().toISOString().replace(/[:.]/g,'-')}.json`,JSON.stringify(data,null,2))}
-function exportChatTXT(c){const arr=msgs.get(c)||[];let out=`# Echidna System - Export Chat\n# Chat: ${c}\n# Exported: ${new Date().toISOString()}\n# Retention (min): ${cfg.retentionMin}\n# Count: ${arr.length}\n\n`;for(const m of arr)out += `[${new Date(m.ts).toISOString()}] ${m.sender}: ${m.text.replace(/\r\n/g,'\n')}\n`;dl(`echidna-chat-${String(c).replace(/\|/g,'_')}-${new Date().toISOString().replace(/[:.]/g,'-')}.txt`,out,'text/plain')}
-$('#cjson').onclick=()=>{if(cur)exportChatJSON(cur);closeCMenu()};
-$('#ctxt').onclick=()=>{if(cur)exportChatTXT(cur);closeCMenu()};
-$('#cexp').onclick=()=>{if(cur)exportChatJSON(cur);closeCMenu()};
-const on={
-  init(d){name=d.me;LS.name=name;$('#who').textContent=name;users=new Map(d.users.map(u=>[u.name,u]));last=new Map();unread={};approx.clear();if(d.cfg){cfg={...cfg,...d.cfg};onlineCount=d.cfg.online||0}onlineCount=d.onlineCount??onlineCount;for(const m of d.last){const c=cid(m);last.set(c,m);if(m.sender!==name&&m.id>(lastRead[c]||0)&&c!==cur){unread[c]=1;approx.add(c)}}document.body.classList.remove('off');$('#login').hidden=true;title();renderList();layout();if(cur){send({t:'hist',chat:cur});renderHead()}updateOnline();},
-  presence(d){users.set(d.name,{name:d.name,online:d.online,last_seen:d.last_seen});onlineCount=d.onlineCount??onlineCount;renderList();renderHead();updateOnline()},
-  online_count(d){onlineCount=d.count;updateOnline();renderHead()},
-  msg({m}){const c=cid(m),arr=msgs.get(c),mine=m.sender===name;last.set(c,m);delete typ[c];if(arr){if(arr.some(x=>x.id===m.id))return;arr.push(m)}if(c===cur){const near=dist()<150;addMsg(m,$('#msgs'),true);if(near||mine)toBottom(true);else{miss++;fab()}if(document.hidden&&!mine){unread[c]=(unread[c]||0)+1;notify()}else markRead(c)}else if(!mine){unread[c]=(unread[c]||0)+1;approx.delete(c);notify()}title();renderList();renderHead()},
-  hist(d){msgs.set(d.chat,d.msgs);if(d.chat===cur)renderMsgs()},
-  typing(d){typ[d.chat]=d.from;clearTimeout(typT[d.chat]);typT[d.chat]=setTimeout(()=>{delete typ[d.chat];renderList();renderHead()},3000);renderList();renderHead()},
-  purge(d){
-    const hit=new Set();
-    for(const [c,arr] of msgs){
-      const n=arr.filter(m=>m.ts>=d.cutoff);
-      if(n.length===arr.length)continue;
-      msgs.set(c,n);hit.add(c);
-      const lm=last.get(c);
-      if(lm&&lm.ts<d.cutoff){if(n.length)last.set(c,n[n.length-1]);else{last.delete(c);unread[c]=0;approx.delete(c)}}
-    }
-    for(const [c,m] of last)
-      if(m&&m.ts<d.cutoff){last.delete(c);unread[c]=0;approx.delete(c);hit.add(c)}
-    if(hit.has(cur)){
-      const box=$('#msgs');
-      box.querySelectorAll('.m').forEach(x=>{x.classList.add('fadeout');setTimeout(()=>x.remove(),230)});
-      setTimeout(()=>renderMsgs(),250);
-    }
-    title();renderList();renderHead();
-  },  reset(){msgs=new Map();last=new Map();unread={};approx.clear();typ={};items.forEach(o=>o.el.remove());items.clear();if(cur){msgs.set(cur,[]);renderMsgs()}title();renderList();renderHead()},
-  cfg_update(d){if(d.cfg)cfg={...cfg,...d.cfg};$('#aret').textContent='Retention: '+cfg.retentionMin+'m'},
-  ban(d){if(d.name===name){toast('Akun kamu diblokir','error',{duration:8000});setTimeout(()=>location.reload(),800)}},
-  unban(){},
-  err(d){$('#login').hidden=false;$('#le').textContent=d.text;const f=$('#lf');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');($('#nm').value?$('#pw'):$('#nm')).focus()},
-  admin_ok(d){saveAdmin($('#apw').value,d.exp||Date.now()+cfg.adminTTL);$('#avf').hidden=true;$('#apf').hidden=false;$('#rmin').value=d.ret||cfg.retentionMin;cfg.retentionMin=d.ret||cfg.retentionMin;if(d.cfg)cfg={...cfg,...d.cfg};fillCfg();fillBans(d.bans||[]);fillBots(d.bots||[]);for(const p of ['#pe','#re','#rx','#ce','#be','#bmsg']){$(p).textContent='';$(p).classList.remove('ok')}$('#npw').value='';$('#npw').focus();updateOnline()},
-  admin_err(d){const p=errBox||$('#ae');p.classList.remove('ok');p.textContent=d.text;toast(d.text||'Error','error')},
-  pw_set(){toast('Password berhasil diubah','success');$('#pe').classList.add('ok');$('#pe').textContent='Password berhasil diubah!';$('#npw').value=''},
-  ret_set(d){cfg.retentionMin=d.minutes;$('#aret').textContent='Retention: '+d.minutes+'m';toast('Durasi disimpan: '+d.minutes+' menit','success');errBox.classList.add('ok');errBox.textContent='Durasi disimpan: '+d.minutes+' menit'},
-  cfg_set_ok(d){if(d.cfg)cfg={...cfg,...d.cfg};fillCfg();errBox.classList.add('ok');errBox.textContent='Pengaturan disimpan'},
-  ban_ok(d){fillBans(d.bans||[]);$('#bname').value='';$('#breason').value='';toast('User diblokir','success');$('#be').classList.add('ok');$('#be').textContent='User diblokir'},
-  unban_ok(d){fillBans(d.bans||[]);toast('Ban dicabut','success');$('#be').classList.add('ok');$('#be').textContent='Ban dicabut'},
-  reset_ok(){toast('Semua chat berhasil direset','success');$('#rx').classList.add('ok');$('#rx').textContent='Semua chat berhasil direset!'},
-  export_all(d){if(d.data)dl(`echidna-chat-export-all-${new Date().toISOString().replace(/[:.]/g,'-')}.json`,JSON.stringify(d.data,null,2))},
-  export_chat(d){if(d.data)dl(`echidna-chat-${String(d.chat).replace(/\|/g,'_')}-${new Date().toISOString().replace(/[:.]/g,'-')}.json`,JSON.stringify(d.data,null,2))},
-  bot_list(d){fillBots(d.bots||[]);$('#bmsg').textContent='';},
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const LS = (() => { try { return localStorage; } catch { return {}; } })();
+
+const h = (t, c, x, ...k) => {
+  const e = document.createElement(t);
+  if (c) e.className = c;
+  if (x != null) e.textContent = x;
+  e.append(...k);
+  return e;
 };
-function updateOnline(){const c=onlineCount||0;$('#sonline').textContent=c+' online';$('#aonline').textContent='Online: '+c}
-function fillCfg(){$('#c_spamMax').value=cfg.spamMax;$('#c_spamWin').value=cfg.spamWin;$('#c_typ').value=cfg.typingThrottle;$('#c_admttl').value=cfg.adminTTL;$('#aret').textContent='Retention: '+cfg.retentionMin+'m'}
-function fillBans(b){const l=$('#blist');l.innerHTML='';(b||[]).forEach(x=>{const it=h('div','bitem',null,h('div',null,x.name,h('div','bmeta',(x.reason?x.reason+' · ':'')+new Date(x.ts).toLocaleString())));const ub=h('button','ghost',null,'Unban');ub.onclick=()=>{const p=isAdminValid()?adminPw:($('#apw').value||'');if(!p){alert('Masukkan password admin');return}errBox=$('#be');$('#be').textContent='';send({t:'admin_unban',pw:p,name:x.name})};it.append(ub);l.append(it)})}
-function connect(){clearTimeout(ct);const sock=ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');sock.onopen=()=>{if(name)send({t:'join',name,token,pw})};sock.onmessage=e=>{try{const d=JSON.parse(e.data);on[d.t]?.(d)}catch{}};sock.onclose=()=>{if(ws!==sock)return;typ={};document.body.classList.add('off');ct=setTimeout(connect,1500)}}
-$('#login').hidden=!!name;if(!name)$('#nm').focus();
-$('#lf').onsubmit=e=>{e.preventDefault();name=$('#nm').value.trim();pw=$('#pw').value;LS.pw=pw;$('#le').textContent='';send({t:'join',name,token,pw})};
-{
-  const adm=$('#adm'),avf=$('#avf'),apf=$('#apf');
-  const err=el=>{el.classList.remove('ok');el.textContent=''};
-  const openAdmin=(withPw=false)=>{avf.hidden=false;apf.hidden=false;if(isAdminValid()){avf.hidden=true;$('#apw').value=adminPw;send({t:'admin_verify',pw:adminPw})}else{apf.hidden=true;$('#apw').value='';$('#apw').focus()}for(const p of ['#ae','#pe','#re','#rx','#ce','#be'])err($(p));adm.hidden=false};
-  let clicks=0,clickT=null;
-  $('#lt').onclick=()=>{$('#lt').blur();clicks++;clearTimeout(clickT);clickT=setTimeout(()=>clicks=0,1500);if(clicks<10)return;clicks=0;clearTimeout(clickT);openAdmin()};
-  $('#ht').onclick=()=>{openAdmin()};
-  if(/^\/admin\/?$/.test(location.pathname))openAdmin();
-  $('#madmin').onclick=()=>{closeMenu();openAdmin()};
-  $('#aclose').onclick=()=>{adm.hidden=true;clearAdmin()};
-  adm.addEventListener('click',e=>{if(e.target===adm){adm.hidden=true;clearAdmin()}});
-  avf.onsubmit=e=>{e.preventDefault();errBox=$('#ae');err(errBox);const p=$('#apw').value;send({t:'admin_verify',pw:p})};
-  $('#rsave').onclick=()=>{errBox=$('#re');err(errBox);const p=isAdminValid()?adminPw:$('#apw').value;if(!p)return;send({t:'admin_setret',pw:p,minutes:$('#rmin').value})};
-  $('#csave').onclick=()=>{errBox=$('#ce');err(errBox);const p=isAdminValid()?adminPw:$('#apw').value;if(!p)return;send({t:'admin_setcfg',pw:p,spamMax:$('#c_spamMax').value,spamWin:$('#c_spamWin').value,typingThrottle:$('#c_typ').value,adminTTL:$('#c_admttl').value})};
-  $('#bban').onclick=()=>{errBox=$('#be');err(errBox);const p=isAdminValid()?adminPw:$('#apw').value;if(!p)return;send({t:'admin_ban',pw:p,name:$('#bname').value,reason:$('#breason').value})};
-  $('#rall').onclick=()=>{errBox=$('#rx');err(errBox);const p=isAdminValid()?adminPw:$('#apw').value;if(!p)return;if(confirm('Hapus SEMUA chat permanen? Tindakan ini tidak bisa dibatalkan.'))send({t:'admin_reset',pw:p})};
-  $('#psave').onclick=()=>{errBox=$('#pe');err(errBox);const p=isAdminValid()?adminPw:$('#apw').value;if(!p)return;send({t:'admin_setpw',pw:p,new:$('#npw').value})};
-  $('#exjson').onclick=()=>{const p=isAdminValid()?adminPw:$('#apw').value;if(!p)return;send({t:'admin_export_chat',pw:p,chat:$('#exchat').value||'general'})};
-  $('#extxt').onclick=()=>{const p=isAdminValid()?adminPw:$('#apw').value;if(!p){alert('Butuh password admin untuk export');return}const c=encodeURIComponent($('#exchat').value||'general');dl(`echidna-chat-${c.replace(/%7C/g,'_')}-${new Date().toISOString().replace(/[:.]/g,'-')}.txt`,'Mengekspor...','text/plain');location.href=`/export/chat.txt?pw=${encodeURIComponent(p)}&chat=${c}`};
-  $('#exall').onclick=()=>{const p=isAdminValid()?adminPw:$('#apw').value;if(!p){alert('Butuh password admin untuk export');return}dl(`echidna-chat-export-all-${new Date().toISOString().replace(/[:.]/g,'-')}.json`,'Mengekspor...','application/json');location.href=`/export/all?pw=${encodeURIComponent(p)}`};
-  $('#mexpall').onclick=()=>{closeMenu();const p=isAdminValid()?adminPw:prompt('Password admin untuk export semua chat:');if(!p)return;dl(`echidna-chat-export-all-${new Date().toISOString().replace(/[:.]/g,'-')}.json`,'Mengekspor...','application/json');location.href=`/export/all?pw=${encodeURIComponent(p)}`};
+const rnd = () => [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join('');
+const mob = () => matchMedia('(max-width:768px)').matches;
+
+let name = LS.name || '', token = LS.token || (LS.token = rnd()), pw = LS.pw || '';
+let ws, ct, cur = null;
+let users = new Map(), channels = new Map(), last = new Map(), msgs = new Map();
+let unread = {}, approx = new Set(), typ = {}, typT = {};
+let lastDay = '', lastWho = '', lastEl = null, lastTs = 0, tsent = 0, miss = 0, raf = 0, errBox = null;
+let cfg = { retentionMin: 48, spamMax: 6, spamWin: 10000, typingThrottle: 1500, adminTTL: 600000, online: 0 };
+let adminPw = null, adminExp = 0, onlineCount = 0;
+let replyingTo = null;
+let pendingImage = null;
+let myBio = '';
+let myAvatar = '';
+
+const lastRead = JSON.parse(LS.lastRead || '{}'), items = new Map(), chanItems = new Map();
+const txt = $('#txt');
+const hhmm = t => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const dkey = t => new Date(t).toDateString();
+const stamp = t => dkey(t) === dkey(Date.now()) ? hhmm(t) : new Date(t).toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+const dayLabel = t => {
+  const d = dkey(t), n = Date.now();
+  return d === dkey(n) ? 'Hari ini' : d === dkey(n - 864e5) ? 'Kemarin' : new Date(t).toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' });
+};
+const hue = n => { let x = 0; for (const c of n) x = (x * 31 + c.charCodeAt(0)) % 360; return x; };
+const isChan = c => channels.has(c);
+const cid = m => isChan(m.chat) ? m.chat : (m.chat.split('|').find(x => x.toLowerCase() !== name.toLowerCase()) || name);
+const send = o => ws?.readyState === 1 && ws.send(JSON.stringify(o));
+const dots = () => h('span', 'dots', null, h('i'), h('i'), h('i'));
+const BIG = /^(?:\p{Extended_Pictographic}\uFE0F?\s*){1,3}$/u;
+
+const isAdminValid = () => adminPw && Date.now() < adminExp;
+function saveAdmin(p, exp) { adminPw = p; adminExp = exp; }
+function clearAdmin() { adminPw = null; adminExp = 0; }
+
+// Dual-Tone Pleasant Chime
+let soundEnabled = (LS.soundEnabled || '1') !== '0';
+function beep() {
+  if (!soundEnabled) return;
+  try {
+    const C = new (window.AudioContext || window.webkitAudioContext)();
+    const now = C.currentTime;
+    const o1 = C.createOscillator(), o2 = C.createOscillator();
+    const g = C.createGain();
+    o1.type = 'sine'; o2.type = 'triangle';
+    o1.frequency.setValueAtTime(587.33, now); // D5
+    o1.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
+    o2.frequency.setValueAtTime(880, now + 0.08);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.08, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+    o1.connect(g); o2.connect(g); g.connect(C.destination);
+    o1.start(now); o2.start(now + 0.08);
+    o1.stop(now + 0.36); o2.stop(now + 0.36);
+    setTimeout(() => C.close(), 400);
+  } catch {}
 }
-const bar=$('#bar');
-function submit(){const v=txt.value.trim();if(!v||!cur)return;send({t:'msg',to:cur,text:v});txt.value='';txt.style.height='auto';bar.classList.remove('has');txt.focus();}
-txt.oninput=()=>{txt.style.height='auto';txt.style.height=Math.min(txt.scrollHeight,140)+'px';bar.classList.toggle('has',!!txt.value.trim());if(cur&&Date.now()-tsent>(cfg.typingThrottle||1500)){tsent=Date.now();send({t:'typing',to:cur})}};
-txt.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&!matchMedia('(pointer:coarse)').matches){e.preventDefault();submit()}};
-bar.onsubmit=e=>{e.preventDefault();submit()};
-document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(ws&&ws.readyState>1)connect();if(cur){unread[cur]=0;markRead(cur);title();renderList()}});
-addEventListener('online',()=>{if(ws&&ws.readyState>1)connect()});
-$('#lo').onclick=()=>{delete LS.name;delete LS.pw;delete LS.lastRead;location.reload()};
-function fillBots(b){
-  const l=$('#botlist');l.innerHTML='';
-  (b||[]).forEach(x=>{
-    const it=h('div','bitem',null,h('div',null,x.name,h('div','bmeta',`[${x.hour}:${String(x.minute).padStart(2,'0')}] days:${x.days||'*'} chat:${x.chat||'general'} pos:${x.pos} ${x.enabled?'ON':'OFF'}`)));
-    const a=h('button','ghost',null,'Edit');a.onclick=()=>editBot(x);
-    const d=h('button','danger',null,'Hapus');d.onclick=()=>{const p=isAdminValid()?adminPw:$('#apw').value;if(!p)return;send({t:'admin_bot_del',pw:p,id:x.id})};
-    it.append(a,d);l.append(it);
+
+function updateSoundIcon() {
+  const v = $('#setSoundVal');
+  if (v) v.textContent = soundEnabled ? 'Aktif' : 'Senyap';
+}
+$('#setSound').onclick = () => {
+  buzz(HAPTIC.tap);
+  soundEnabled = !soundEnabled;
+  LS.soundEnabled = soundEnabled ? '1' : '0';
+  updateSoundIcon();
+  if (soundEnabled) {
+    beep();
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  } else {
+    toast('Suara notifikasi dibisukan', 'info');
+  }
+};
+updateSoundIcon();
+
+// Haptic feedback (Android/Chrome). No-op on iOS Safari & unsupported devices.
+const HAPTIC = { tap: 8, success: [8, 32, 8], error: [18, 40, 18] };
+const buzz = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} };
+
+const TOAST_ICONS = {
+  success: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  error: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  info: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+};
+
+const toast = (msg, type = 'info', opts = {}) => {
+  if (!msg) return;
+  if (type === 'error') buzz(HAPTIC.error);
+  else if (type === 'success') buzz(HAPTIC.success);
+  const container = document.getElementById('toast-container') || document.body;
+  const el = document.createElement('div');
+  el.className = `toast-item toast-${type}`;
+
+  const icon = document.createElement('span');
+  icon.className = 'toast-icon';
+  icon.innerHTML = TOAST_ICONS[type] || TOAST_ICONS.info;
+
+  const text = document.createElement('span');
+  text.className = 'toast-text';
+  text.textContent = msg;
+
+  el.append(icon, text);
+
+  let dismissed = false;
+  const dismiss = () => {
+    if (dismissed) return;
+    dismissed = true;
+    el.classList.add('toast-out');
+    setTimeout(() => el.remove(), 220);
+  };
+
+  el.onclick = dismiss;
+  container.appendChild(el);
+
+  while (container.children.length > 4) {
+    container.firstElementChild.remove();
+  }
+
+  const dur = opts.duration || (type === 'error' ? 4500 : 3200);
+  setTimeout(dismiss, dur);
+};
+
+let cfmOnOk = null, cfmPrevFocus = null;
+function openConfirm({ title = 'Hapus Pesan?', message = '', okText = 'Hapus', okClass = 'danger', danger = true, input = null, onOk } = {}) {
+  const m = $('#cfm');
+  if (!m) return;
+  cfmOnOk = typeof onOk === 'function' ? onOk : null;
+  cfmPrevFocus = document.activeElement;
+  $('.cfm-box').classList.toggle('cfm-info', !danger);
+  $('#cfmTitleTxt').textContent = title;
+  $('#cfmMsg').textContent = message;
+  $('#cfmOk').textContent = okText;
+  $('#cfmOk').className = 'btn' + (okClass ? ' ' + okClass : '');
+  const inp = $('#cfmInput');
+  if (input) {
+    inp.hidden = false;
+    inp.type = input.type || 'text';
+    inp.placeholder = input.placeholder || '';
+    inp.value = '';
+  } else {
+    inp.hidden = true;
+    inp.value = '';
+  }
+  m.hidden = false;
+  (input ? inp : $('#cfmCancel')).focus();
+}
+function closeConfirm() {
+  const m = $('#cfm');
+  if (!m || m.hidden) return;
+  m.hidden = true;
+  $('#cfmInput').hidden = true;
+  $('#cfmInput').value = '';
+  cfmOnOk = null;
+  if (cfmPrevFocus && typeof cfmPrevFocus.focus === 'function') cfmPrevFocus.focus();
+  cfmPrevFocus = null;
+}
+$('#cfmCancel').onclick = closeConfirm;
+$('#cfm').onclick = e => { if (e.target === $('#cfm')) closeConfirm(); };
+$('#cfmOk').onclick = () => {
+  buzz(HAPTIC.success);
+  const fn = cfmOnOk, inp = $('#cfmInput'), val = inp.hidden ? undefined : inp.value;
+  closeConfirm();
+  if (fn) fn(val);
+};
+$('#cfmInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#cfmOk').click(); } });
+
+function notify(m, c) {
+  if (!document.hidden || !soundEnabled) return;
+  beep();
+  if (navigator.vibrate) try { navigator.vibrate(40); } catch {}
+  if ('Notification' in window && Notification.permission === 'granted' && m) {
+    const title = isChan(c) ? `#${c} (${m.sender})` : m.sender;
+    const n = new Notification(title, {
+      body: m.text || (m.media ? '[Gambar]' : ''),
+      icon: '/icon.svg'
+    });
+    n.onclick = () => { window.focus(); open(c); };
+  }
+}
+
+function avatar(el, n) {
+  if (!el || !n) return;
+  if (isChan(n)) {
+    el.textContent = '#';
+    el.style.backgroundImage = 'none';
+    el.style.background = 'var(--acc)';
+    el.style.color = 'var(--acc-t)';
+  } else {
+    const u = users.get(n);
+    const pic = (n === name ? myAvatar : u?.avatar);
+    if (pic) {
+      el.textContent = '';
+      el.style.backgroundImage = `url("${pic}")`;
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.style.backgroundRepeat = 'no-repeat';
+      el.style.backgroundColor = 'var(--panel)';
+    } else {
+      const x = hue(n);
+      el.textContent = [...n][0].toUpperCase();
+      el.style.backgroundImage = 'none';
+      el.style.background = `linear-gradient(135deg, hsl(${x} 65% 58%), hsl(${(x + 35) % 360} 70% 45%))`;
+      el.style.color = '#fff';
+    }
+  }
+}
+
+function formatMessageContent(text) {
+  const fragment = document.createDocumentFragment();
+  if (!text) return fragment;
+
+  const codeBlockRegex = /```([\s\S]*?)```/g;
+  let lastIndex = 0, match;
+
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      fragment.append(formatInlineText(text.slice(lastIndex, match.index)));
+    }
+    const pre = h('pre', 'cblock');
+    const raw = match[1].replace(/^\n+|\n+$/g, '');
+    const code = h('code', null, raw);
+    const cpBtn = h('button', 'cblock-copy-btn', 'Salin');
+    cpBtn.type = 'button';
+    cpBtn.title = 'Salin kode';
+    cpBtn.onclick = e => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(raw).then(() => {
+        cpBtn.textContent = 'Tersalin!';
+        setTimeout(() => { cpBtn.textContent = 'Salin'; }, 1500);
+      }).catch(() => toast('Gagal menyalin kode', 'error'));
+    };
+    pre.append(code, cpBtn);
+    fragment.append(pre);
+    lastIndex = codeBlockRegex.lastIndex;
+  }
+  if (lastIndex < text.length) {
+    fragment.append(formatInlineText(text.slice(lastIndex)));
+  }
+  return fragment;
+}
+
+function formatInlineText(s) {
+  const fragment = document.createDocumentFragment();
+  const tokenRegex = /(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])|(`[^`]+`)|(\*\*[^*]+\*\*)|(\*[^*]+\*)|(_[^_]+_)/g;
+  let i = 0, m;
+
+  while ((m = tokenRegex.exec(s)) !== null) {
+    if (m.index > i) fragment.append(s.slice(i, m.index));
+    const token = m[0];
+    if (token.startsWith('http')) {
+      const a = h('a', null, token);
+      a.href = token; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      fragment.append(a);
+    } else if (token.startsWith('`') && token.endsWith('`')) {
+      fragment.append(h('code', 'icode', token.slice(1, -1)));
+    } else if (token.startsWith('**') && token.endsWith('**')) {
+      const b = h('strong', null, token.slice(2, -2));
+      fragment.append(b);
+    } else if ((token.startsWith('*') && token.endsWith('*')) || (token.startsWith('_') && token.endsWith('_'))) {
+      const em = h('em', null, token.slice(1, -1));
+      fragment.append(em);
+    }
+    i = tokenRegex.lastIndex;
+  }
+  if (i < s.length) fragment.append(s.slice(i));
+  return fragment;
+}
+
+function markRead(c) {
+  const m = last.get(c);
+  if (m) { lastRead[c] = m.id; LS.lastRead = JSON.stringify(lastRead); }
+}
+
+function title() {
+  const n = Object.values(unread).reduce((a, b) => a + b, 0);
+  document.title = (n ? `(${n}) ` : '') + 'Echidna System';
+}
+
+function layout() {
+  const m = mob();
+  $('#main').inert = m && !cur;
+  $('#side').inert = m && !!cur;
+  document.body.classList.toggle('chat', m && !!cur);
+}
+
+function channelItem(id, info) {
+  let o = chanItems.get(id);
+  if (o) return o;
+  const av = h('div', 'av');
+  avatar(av, id);
+  const tm = h('span', 'time');
+  const pv = h('span', 'prev', info?.topic || '');
+  const bd = h('span', 'badge');
+  bd.hidden = true;
+  const el = h('div', 'item', null,
+    av,
+    h('div', 'meta', null,
+      h('div', 'row', null, h('span', 'name', '#' + id), tm),
+      h('div', 'row', null, pv, bd)
+    )
+  );
+  el.tabIndex = 0;
+  el.setAttribute('role', 'button');
+  el.setAttribute('aria-label', 'Kanal ' + id);
+  el.onclick = () => { buzz(HAPTIC.tap); open(id); };
+  el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(id); } };
+  o = { el, av, tm, pv, bd };
+  chanItems.set(id, o);
+  return o;
+}
+
+function userItem(id) {
+  let o = items.get(id);
+  if (o) return o;
+  const av = h('div', 'av');
+  avatar(av, id);
+  const tm = h('span', 'time');
+  const pv = h('span', 'prev');
+  const bd = h('span', 'badge');
+  bd.hidden = true;
+  const el = h('div', 'item', null,
+    av,
+    h('div', 'meta', null,
+      h('div', 'row', null, h('span', 'name', id), tm),
+      h('div', 'row', null, pv, bd)
+    )
+  );
+  el.tabIndex = 0;
+  el.setAttribute('role', 'button');
+  el.setAttribute('aria-label', 'Obrolan ' + id);
+  el.onclick = () => { buzz(HAPTIC.tap); open(id); };
+  el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(id); } };
+  o = { el, av, tm, pv, bd };
+  items.set(id, o);
+  return o;
+}
+
+function renderList() {
+  const f = $('#search').value.trim().toLowerCase();
+
+  // Render Channels Section
+  const cList = $('#chanList');
+  const chIds = [...channels.keys()].filter(c => !f || c.toLowerCase().includes(f));
+  chIds.sort((a, b) => (a === 'general' ? -1 : b === 'general' ? 1 : a.localeCompare(b)));
+
+  const keepCh = new Set(chIds);
+  for (const [id, o] of chanItems) if (!keepCh.has(id)) o.el.remove();
+
+  chIds.forEach((id, i) => {
+    const o = channelItem(id, channels.get(id)), m = last.get(id), n = unread[id] || 0, ty = typ[id];
+    o.el.classList.toggle('on', id === cur);
+    o.tm.textContent = m ? stamp(m.ts) : '';
+    o.pv.classList.toggle('hl', !!ty);
+    if (ty) {
+      o.pv.textContent = ty + ' mengetik';
+      o.pv.append(dots());
+    } else {
+      const prefix = m ? (m.sender === 'system' ? '' : (m.sender === name ? 'Kamu: ' : m.sender + ': ')) : '';
+      const textPreview = m ? (m.sender === 'system' ? m.text : (m.media ? '[Gambar] ' + (m.text || '') : m.text)) : (channels.get(id)?.topic || '');
+      o.pv.textContent = prefix + textPreview;
+    }
+    if (n) {
+      const t = n + (approx.has(id) ? '+' : '');
+      if (o.bd.textContent !== t) {
+        o.bd.textContent = t; o.bd.classList.remove('pop');
+        void o.bd.offsetWidth; o.bd.classList.add('pop');
+      }
+      o.bd.hidden = false;
+    } else { o.bd.hidden = true; }
+    if (cList.children[i] !== o.el) cList.insertBefore(o.el, cList.children[i] || null);
+  });
+
+  // Render Direct Messages Section
+  const uList = $('#list');
+  const uIds = [...users.keys()].filter(n => n !== name).filter(n => !f || n.toLowerCase().includes(f));
+  uIds.sort((a, b) => (last.get(b)?.id || 0) - (last.get(a)?.id || 0) || a.localeCompare(b));
+
+  const keepUsers = new Set(uIds);
+  for (const [id, o] of items) if (!keepUsers.has(id)) o.el.remove();
+
+  uIds.forEach((id, i) => {
+    const o = userItem(id), m = last.get(id), n = unread[id] || 0, ty = typ[id];
+    o.el.classList.toggle('on', id === cur);
+    o.av.classList.toggle('dot', !!users.get(id)?.online);
+    o.tm.textContent = m ? stamp(m.ts) : '';
+    o.pv.classList.toggle('hl', !!ty);
+    if (ty) {
+      o.pv.textContent = 'mengetik';
+      o.pv.append(dots());
+    } else {
+      const prefix = m ? (m.sender === 'system' ? '' : (m.sender === name ? 'Kamu: ' : '')) : '';
+      const textPreview = m ? (m.sender === 'system' ? m.text : (m.media ? '[Gambar] ' + (m.text || '') : m.text)) : (users.get(id)?.bio || '');
+      o.pv.textContent = prefix + textPreview;
+    }
+    if (n) {
+      const t = n + (approx.has(id) ? '+' : '');
+      if (o.bd.textContent !== t) {
+        o.bd.textContent = t; o.bd.classList.remove('pop');
+        void o.bd.offsetWidth; o.bd.classList.add('pop');
+      }
+      o.bd.hidden = false;
+    } else { o.bd.hidden = true; }
+    if (uList.children[i] !== o.el) uList.insertBefore(o.el, uList.children[i] || null);
+  });
+
+  // Search Empty State Indicator (R-27)
+  let emptyEl = $('#searchEmpty');
+  if (f && chIds.length === 0 && uIds.length === 0) {
+    if (!emptyEl) {
+      emptyEl = h('div', 'empty-search-hint');
+      emptyEl.id = 'searchEmpty';
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('viewBox', '0 0 24 24'); icon.setAttribute('width', '28'); icon.setAttribute('height', '28');
+      icon.setAttribute('fill', 'none'); icon.setAttribute('stroke', 'currentColor'); icon.setAttribute('stroke-width', '2');
+      icon.innerHTML = '<circle cx="11" cy="11" r="7"/><path d="M16 16l4 4"/>';
+      const p = h('p', null, `Tidak ada kanal atau kontak untuk "${f}"`);
+      p.id = 'searchEmptyText';
+      emptyEl.append(icon, p);
+      $('#side').append(emptyEl);
+    } else {
+      $('#searchEmptyText').textContent = `Tidak ada kanal atau kontak untuk "${f}"`;
+      emptyEl.hidden = false;
+    }
+  } else if (emptyEl) {
+    emptyEl.hidden = true;
+  }
+}
+
+function renderHead() {
+  if (!cur) return;
+  const ts = $('#ts'), u = users.get(cur), ty = typ[cur];
+  const isC = isChan(cur);
+  $('#tn').textContent = isC ? '#' + cur : cur;
+  avatar($('#tav'), cur);
+  $('#tav').classList.toggle('dot', !isC && !!u?.online);
+  ts.textContent = '';
+  ts.classList.remove('hl');
+  if (ty) {
+    ts.classList.add('hl');
+    ts.append(ty + ' mengetik', dots());
+  } else if (isC) {
+    const top = channels.get(cur)?.topic;
+    ts.textContent = top ? top : (onlineCount > 0 ? `${onlineCount} pengguna aktif di LAN` : 'Lokal');
+  } else {
+    ts.textContent = '';
+    if (u?.online) {
+      const spanOn = h('span', 'status-online', null, h('span', 'dot-online'), 'Online');
+      ts.append(spanOn);
+      if (u.bio) ts.append(h('span', 'status-bio', ' · “' + u.bio + '”'));
+    } else {
+      ts.textContent = (u ? `Terakhir aktif ${stamp(u.last_seen)}` : 'Offline') + (u?.bio ? ' · “' + u.bio + '”' : '');
+    }
+  }
+}
+
+const dist = () => {
+  const b = $('#msgs');
+  return b.scrollHeight - b.scrollTop - b.clientHeight;
+};
+const toBottom = sm => {
+  const b = $('#msgs');
+  b.scrollTo({ top: b.scrollHeight, behavior: sm ? 'smooth' : 'auto' });
+};
+function fab() {
+  $('#down').classList.toggle('show', dist() > 240);
+  const d = $('#dn');
+  d.textContent = miss || '';
+  d.hidden = !miss;
+}
+$('#msgs').addEventListener('scroll', () => {
+  if (raf) return;
+  raf = requestAnimationFrame(() => {
+    raf = 0;
+    if (dist() < 80) miss = 0;
+    fab();
+  });
+}, { passive: true });
+$('#down').onclick = () => { miss = 0; toBottom(true); };
+
+function setupReply(m) {
+  replyingTo = { id: m.id, sender: m.sender, text: m.text || (m.media ? '[Gambar]' : '') };
+  $('#replyWho').textContent = 'Balas @' + m.sender;
+  $('#replyText').textContent = replyingTo.text;
+  $('#replyBar').hidden = false;
+  txt.focus();
+}
+$('#replyCancel').onclick = () => {
+  replyingTo = null;
+  $('#replyBar').hidden = true;
+};
+
+
+
+function openLightbox(url) {
+  $('#lightboxImg').src = url;
+  $('#lightbox').hidden = false;
+}
+$('#lightboxClose').onclick = () => $('#lightbox').hidden = true;
+$('#lightbox').onclick = e => { if (e.target === $('#lightbox')) $('#lightbox').hidden = true; };
+
+function addMsg(m, parent, anim) {
+  const box = $('#msgs'), d = dkey(m.ts), mine = (m.sender || '').toLowerCase() === (name || '').toLowerCase();
+  if (parent === box && box.firstElementChild?.classList.contains('hint')) {
+    box.firstElementChild.remove();
+  }
+  if (d !== lastDay) {
+    parent.append(h('div', 'day', dayLabel(m.ts)));
+    lastDay = d; lastWho = ''; lastEl = null;
+  }
+
+  // System Notification Timeline Banner
+  if (m.sender === 'system') {
+    const sysEl = h('div', 'sys-msg' + (anim ? ' new' : ''));
+    sysEl.dataset.id = m.id;
+    sysEl.dataset.text = (m.text || '').toLowerCase();
+    const badge = h('span', 'sys-pill', m.text);
+    const time = h('span', 'sys-time', hhmm(m.ts));
+    sysEl.append(badge, time);
+    parent.append(sysEl);
+    lastWho = 'system';
+    lastEl = sysEl;
+    lastTs = m.ts;
+    return;
+  }
+
+  const g = !!lastEl && m.sender === lastWho && m.ts - lastTs < 300000;
+  const wrap = h('div', 'm-wrap' + (mine ? ' me' : '') + (g ? ' g' : '') + (anim ? ' new' : ''));
+  wrap.dataset.id = m.id;
+  wrap.dataset.text = (m.text || '').toLowerCase();
+
+  const bubble = h('div', 'm' + (BIG.test(m.text) ? ' big' : ''));
+  if (g && lastEl) lastEl.classList.add('gp');
+
+  if (isChan(cur) && !mine && !g) {
+    const w = h('div', 'who', m.sender);
+    w.style.color = `hsl(${hue(m.sender)} 65% 55%)`;
+    bubble.append(w);
+  }
+
+  // Quoted reply block
+  if (m.reply_to && m.reply_sender) {
+    const qb = h('div', 'qblock');
+    qb.append(h('span', 'qwho', '@' + m.reply_sender));
+    qb.append(h('span', 'qtext', m.reply_text || '[Pesan]'));
+    qb.onclick = () => {
+      const target = box.querySelector(`[data-id="${m.reply_to}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.style.transition = 'background 0.3s';
+        target.style.background = 'var(--sel)';
+        setTimeout(() => target.style.background = '', 1200);
+      }
+    };
+    bubble.append(qb);
+  }
+
+  // Image Media
+  if (m.media) {
+    const imgWrap = h('div', 'mimg-wrap');
+    const img = h('img', 'mimg');
+    img.src = m.media;
+    img.alt = 'Gambar';
+    img.loading = 'lazy';
+    img.onclick = () => openLightbox(m.media);
+    imgWrap.append(img);
+    bubble.append(imgWrap);
+  }
+
+  if (m.text) {
+    const x = h('span', 'x');
+    x.append(formatMessageContent(m.text));
+    bubble.append(x);
+  }
+  bubble.append(h('span', 't', hhmm(m.ts)));
+
+  // Action Bar (Reply & Delete)
+  const act = h('div', 'm-actions');
+  const replyBtn = h('button', null);
+  replyBtn.setAttribute('aria-label', 'Balas pesan');
+  replyBtn.title = 'Balas pesan';
+  replyBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>';
+  replyBtn.onclick = e => {
+    e.stopPropagation();
+    wrap.classList.remove('show-actions');
+    buzz(HAPTIC.tap);
+    setupReply(m);
+  };
+  act.append(replyBtn);
+
+  if (m.text) {
+    const copyMsgBtn = h('button', null);
+    copyMsgBtn.setAttribute('aria-label', 'Salin teks');
+    copyMsgBtn.title = 'Salin teks';
+    copyMsgBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    copyMsgBtn.onclick = e => {
+      e.stopPropagation();
+      wrap.classList.remove('show-actions');
+      navigator.clipboard.writeText(m.text).then(() => {
+        toast('Teks disalin', 'info');
+      }).catch(() => toast('Gagal menyalin teks', 'error'));
+    };
+    act.append(copyMsgBtn);
+  }
+
+  if (mine || isAdminValid()) {
+    const delBtn = h('button', 'del-btn');
+    delBtn.setAttribute('aria-label', 'Hapus pesan');
+    delBtn.title = 'Hapus pesan';
+    delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    delBtn.onclick = e => {
+      e.stopPropagation();
+      wrap.classList.remove('show-actions');
+      openConfirm({
+        title: 'Hapus Pesan?',
+        message: 'Pesan ini akan dihapus permanen untuk semua orang. Tindakan ini tidak bisa dibatalkan.',
+        okText: 'Hapus',
+        onOk: () => send({ t: 'delete_msg', id: m.id, pw: adminPw || '' })
+      });
+    };
+    act.append(delBtn);
+  }
+  wrap.onclick = e => {
+    if (e.target.closest('.m-actions') || e.target.closest('.qblock') || e.target.closest('img') || e.target.closest('a')) return;
+    const isShown = wrap.classList.contains('show-actions');
+    $$('#msgs .m-wrap.show-actions').forEach(el => el.classList.remove('show-actions'));
+    if (!isShown) wrap.classList.add('show-actions');
+  };
+
+  wrap.append(bubble);
+  wrap.append(act);
+
+  parent.append(wrap);
+  lastWho = m.sender;
+  lastEl = wrap;
+  lastTs = m.ts;
+}
+
+function renderMsgs() {
+  const box = $('#msgs'), fr = document.createDocumentFragment(), arr = msgs.get(cur);
+  lastDay = lastWho = ''; lastEl = null; lastTs = 0;
+  if (arr) {
+    arr.forEach(m => addMsg(m, fr, false));
+    if (!arr.length) {
+      const hnt = h('div', 'hint', 'Belum ada pesan di sini.');
+      fr.append(hnt);
+    }
+  }
+  box.replaceChildren(fr);
+  box.scrollTop = box.scrollHeight;
+  miss = 0; fab();
+  filterCurrentMessages();
+}
+
+function open(id) {
+  cur = id; unread[id] = 0; approx.delete(id); markRead(id); title();
+  $('#main').classList.add('open');
+  document.body.classList.add('chat');
+  if (mob()) {
+    history.state?.c ? history.replaceState({ c: id }, '') : history.pushState({ c: id }, '');
+  }
+  renderHead(); renderMsgs(); renderList(); layout();
+  send({ t: 'hist', chat: id });
+  const mw = $('#mw');
+  mw.classList.remove('swap');
+  void mw.offsetWidth;
+  mw.classList.add('swap');
+  if (!mob()) txt.focus();
+  closeCMenu(); closeMenu();
+}
+
+function close() {
+  cur = null; document.body.classList.remove('chat');
+  if (!mob()) $('#main').classList.remove('open');
+  layout(); renderList(); closeCMenu();
+}
+$('#back').onclick = () => { if (mob()) { history.replaceState({}, ''); close(); } else { close(); } };
+addEventListener('popstate', e => {
+  if (mob()) {
+    if (cur && !e.state?.c) { close(); history.replaceState({}, ''); }
+    else if (!cur && e.state?.c) { open(e.state.c); }
+  } else if (!e.state?.c && cur) close();
+}, { passive: true });
+matchMedia('(max-width:768px)').addEventListener('change', layout);
+$('#search').oninput = renderList;
+function refreshSettings() {
+  $('#setThemeVal').textContent = root.dataset.theme === 'dark' ? 'Mode Gelap' : 'Mode Terang';
+  updateSoundIcon();
+}
+
+let activeTab = 'chat';
+function setTab(t) {
+  activeTab = t;
+  const paneSel = { chat: '#chatview', settings: '#viewSettings', profile: '#viewProfile' };
+  $('#chatview').hidden = t !== 'chat';
+  $('#viewSettings').hidden = t !== 'settings';
+  $('#viewProfile').hidden = t !== 'profile';
+  $$('#tabbar .tab').forEach(b => {
+    const on = b.dataset.tab === t;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+    b.querySelector('.tab-ico')?.classList.remove('pop');
+  });
+  const pane = $(paneSel[t]);
+  if (pane) { pane.classList.remove('enter'); void pane.offsetWidth; pane.classList.add('enter'); }
+  const ico = document.querySelector('#tabbar .tab.on .tab-ico');
+  if (ico) { void ico.offsetWidth; ico.classList.add('pop'); }
+  if (t === 'settings') refreshSettings();
+  if (t === 'profile') refreshProfile();
+  if (t === 'chat') layout();
+}
+$$('#tabbar .tab').forEach(b => { b.onclick = () => { buzz(HAPTIC.tap); setTab(b.dataset.tab); }; });
+
+$('#setTheme').onclick = () => { buzz(HAPTIC.tap); theme(root.dataset.theme === 'dark' ? 'light' : 'dark'); refreshSettings(); };
+
+const cmenu = $('#cmenu'), closeMenu = () => {}, closeCMenu = () => cmenu.hidden = true;
+$('#cdot').onclick = e => { e.stopPropagation(); cmenu.hidden = !cmenu.hidden; };
+$('#cexp').onclick = e => { e.stopPropagation(); cmenu.hidden = !cmenu.hidden; };
+document.addEventListener('click', e => {
+  if (!cmenu.hidden && !cmenu.contains(e.target) && !$('#cdot').contains(e.target) && !$('#cexp').contains(e.target)) closeCMenu();
+  if (!e.target.closest('.m-wrap')) $$('#msgs .m-wrap.show-actions').forEach(el => el.classList.remove('show-actions'));
+});
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (mob() && cur) close();
+    const s = $('#search');
+    s.focus(); s.select();
+    return;
+  }
+  if (e.key === 'Escape') {
+    if (!$('#cfm').hidden) { closeConfirm(); return; }
+    if (activeTab !== 'chat' && $('#adm').hidden && $('#devm').hidden && $('#newChanModal').hidden && $('#lightbox').hidden) {
+      setTab('chat');
+      return;
+    }
+    if (replyingTo) {
+      replyingTo = null;
+      $('#replyBar').hidden = true;
+    }
+    if (pendingImage) {
+      $('#imgPreviewCancel').click();
+    }
+    closeMenu(); closeCMenu();
+    $('#adm').hidden = true;
+    $('#devm').hidden = true;
+    $('#lightbox').hidden = true;
+    $('#newChanModal').hidden = true;
+    $$('#msgs .m-wrap.show-actions').forEach(el => el.classList.remove('show-actions'));
+    closeMessageSearch();
+  }
+});
+
+// Message Search Inside Conversation
+const csearchBar = $('#csearchBar');
+const csearchInput = $('#csearchInput');
+const csearchCount = $('#csearchCount');
+$('#csearchBtn').onclick = () => {
+  csearchBar.hidden = !csearchBar.hidden;
+  if (!csearchBar.hidden) {
+    csearchInput.focus();
+    filterCurrentMessages();
+  } else {
+    closeMessageSearch();
+  }
+};
+function closeMessageSearch() {
+  csearchBar.hidden = true;
+  csearchInput.value = '';
+  csearchCount.textContent = '';
+  $$('#msgs .m-wrap').forEach(w => {
+    w.classList.remove('dimmed', 'highlight-match');
   });
 }
-let editingBot=null;
-function editBot(x){
-  editingBot=x;
-  $('#bname_bot').value=x.name;
-  $('#benabled').value=x.enabled?'1':'0';
-  $('#bhour').value=x.hour;
-  $('#bminute').value=x.minute;
-  $('#bdays').value=x.days||'*';
-  $('#bchat').value=x.chat||'general';
-  $('#btext').value=x.text||'';
-  $('#bpos').value=x.pos||0;
-  $('#bsave').disabled=false;$('#bcancel').hidden=false;$('#badd').disabled=true;
-}
-$('#badd').onclick=()=>{
-  const p=isAdminValid()?adminPw:$('#apw').value;if(!p)return;
-  send({t:'admin_bot_add',pw:p,name:$('#bname_bot').value,enabled:+$('#benabled').value,hour:+$('#bhour').value,minute:+$('#bminute').value,days:$('#bdays').value||'*',chat:$('#bchat').value||'general',text:$('#btext').value,pos:+$('#bpos').value});
-};
-$('#bsave').onclick=()=>{
-  if(!editingBot)return;const p=isAdminValid()?adminPw:$('#apw').value;if(!p)return;
-  send({t:'admin_bot_upd',pw:p,id:editingBot.id,name:$('#bname_bot').value,enabled:+$('#benabled').value,hour:+$('#bhour').value,minute:+$('#bminute').value,days:$('#bdays').value||'*',chat:$('#bchat').value||'general',text:$('#btext').value,pos:+$('#bpos').value});
-  editingBot=null;$('#bsave').disabled=true;$('#bcancel').hidden=true;$('#badd').disabled=false;
-};
-$('#bcancel').onclick=()=>{editingBot=null;$('#bsave').disabled=true;$('#bcancel').hidden=true;$('#badd').disabled=false;};
+$('#csearchClose').onclick = closeMessageSearch;
+csearchInput.oninput = filterCurrentMessages;
 
-$('#mdev').onclick=()=>{closeMenu();$('#devm').hidden=false;$('#dname').value=name||'';$('#dout').textContent='';$('#derr').textContent='';$('#dcode').value='';};
-$('#dclose').onclick=()=>{$('#devm').hidden=true;};
-$('#dgen').onclick=async()=>{
-  const nm=$('#dname').value.trim();
-  if(!nm){$('#dout').textContent='Masukkan nama akun';return;}
-  try{
-    const r=await fetch('/api/device/pin',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:nm})});
-    const d=await r.json();
-    if(d.ok) $('#dout').textContent='Kode: '+d.code+' (berlaku 10 menit)';
-    else $('#dout').textContent='Gagal membuat kode';
-  }catch{$('#dout').textContent='Error';}
+function filterCurrentMessages() {
+  if (csearchBar.hidden) return;
+  const q = csearchInput.value.trim().toLowerCase();
+  const wraps = $$('#msgs .m-wrap');
+  if (!q) {
+    wraps.forEach(w => w.classList.remove('dimmed', 'highlight-match'));
+    csearchCount.textContent = '';
+    return;
+  }
+  let count = 0;
+  wraps.forEach(w => {
+    const text = w.dataset.text || '';
+    if (text.includes(q)) {
+      w.classList.remove('dimmed');
+      w.classList.add('highlight-match');
+      count++;
+    } else {
+      w.classList.add('dimmed');
+      w.classList.remove('highlight-match');
+    }
+  });
+  csearchCount.textContent = count ? `${count} hasil` : 'Tidak ditemukan';
+}
+
+// Touch swipe to close on mobile
+{
+  const mn = $('#main'); let sx = 0, sy = 0, dx = 0, drag = false;
+  mn.addEventListener('touchstart', e => {
+    if (!mob() || !cur) return;
+    const t = e.touches[0];
+    if (t.clientX > 28) return;
+    sx = t.clientX; sy = t.clientY; dx = 0; drag = true; mn.style.transition = 'none';
+  }, { passive: true });
+  mn.addEventListener('touchmove', e => {
+    if (!drag) return;
+    const t = e.touches[0];
+    dx = Math.max(0, t.clientX - sx);
+    if (dx < 12 && Math.abs(t.clientY - sy) > 24) {
+      drag = false; mn.style.transition = ''; mn.style.transform = ''; return;
+    }
+    mn.style.transform = `translateX(${dx}px)`;
+  }, { passive: true });
+  const end = () => {
+    if (!drag) return;
+    drag = false; mn.style.transition = ''; mn.style.transform = '';
+    if (dx > 90) $('#back').onclick();
+  };
+  mn.addEventListener('touchend', end, { passive: true });
+  mn.addEventListener('touchcancel', end, { passive: true });
+}
+
+if (window.visualViewport) {
+  const vv = visualViewport, f = () => {
+    if (vv.scale > 1) return;
+    root.style.setProperty('--vh', vv.height + 'px');
+    if (vv.offsetTop) scrollTo(0, 0);
+  };
+  vv.addEventListener('resize', () => { const near = dist() < 150; f(); if (near) toBottom(false); });
+  vv.addEventListener('scroll', f);
+  f();
+}
+
+function dl(fname, content, type = 'application/json') {
+  const a = document.createElement('a');
+  const b = new Blob([content], { type });
+  a.href = URL.createObjectURL(b);
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+}
+
+function exportChatJSON(c) {
+  const arr = msgs.get(c) || [];
+  const data = { exportedAt: Date.now(), chat: c, count: arr.length, retentionMin: cfg.retentionMin, rows: arr };
+  dl(`echidna-chat-${String(c).replace(/\|/g, '_')}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`, JSON.stringify(data, null, 2));
+}
+function exportChatTXT(c) {
+  const arr = msgs.get(c) || [];
+  let out = `# Echidna System - Export Chat\n# Chat: ${c}\n# Exported: ${new Date().toISOString()}\n# Retention (min): ${cfg.retentionMin}\n# Count: ${arr.length}\n\n`;
+  for (const m of arr) out += `[${new Date(m.ts).toISOString()}] ${m.sender}: ${(m.text || '').replace(/\r\n/g, '\n')}\n`;
+  dl(`echidna-chat-${String(c).replace(/\|/g, '_')}-${new Date().toISOString().replace(/[:.]/g, '-')}.txt`, out, 'text/plain');
+}
+$('#cjson').onclick = () => { buzz(HAPTIC.tap); if (cur) exportChatJSON(cur); closeCMenu(); };
+$('#ctxt').onclick = () => { buzz(HAPTIC.tap); if (cur) exportChatTXT(cur); closeCMenu(); };
+$('#cexp').onclick = () => { buzz(HAPTIC.tap); if (cur) exportChatJSON(cur); closeCMenu(); };
+
+// Channel Creation Dialog
+const openChanModal = () => {
+  closeMenu();
+  $('#newChanModal').hidden = false;
+  $('#newChanName').value = '';
+  $('#newChanTopic').value = '';
+  $('#newChanErr').textContent = '';
+  $('#newChanName').focus();
 };
-$('#dver').onclick=async()=>{
-  const c=$('#dcode').value.trim();
-  if(!c){$('#derr').textContent='Masukkan kode';return;}
-  try{
-    const r=await fetch('/api/device/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code:c})});
-    const d=await r.json();
-    if(d.ok){
-      localStorage.name=d.name;localStorage.token=d.token;localStorage.pw=localStorage.pw||'anjir445566';
+$('#addChanBtn').onclick = () => { buzz(HAPTIC.tap); openChanModal(); };
+
+$('#newChanClose').onclick = () => { $('#newChanModal').hidden = true; };
+$('#newChanModal').onclick = e => { if (e.target === $('#newChanModal')) $('#newChanModal').hidden = true; };
+
+$('#newChanForm').onsubmit = e => {
+  e.preventDefault();
+  const cName = $('#newChanName').value.trim().toLowerCase();
+  const cTopic = $('#newChanTopic').value.trim();
+  if (!cName) return;
+  buzz(HAPTIC.tap);
+  send({ t: 'channel_create', name: cName, topic: cTopic });
+  $('#newChanModal').hidden = true;
+};
+
+// Image Attachment & Upload Handling
+$('#attachBtn').onclick = () => { buzz(HAPTIC.tap); $('#mediaInput').click(); };
+$('#mediaInput').onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  handleImageSelection(file);
+};
+
+function handleImageSelection(file) {
+  if (!file.type.startsWith('image/')) {
+    toast('Pilih file gambar valid (PNG, JPG, WebP, GIF)', 'error');
+    return;
+  }
+  if (file.size > 3 * 1024 * 1024) {
+    toast('Ukuran gambar maksimal 3MB', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingImage = { file, dataUrl: ev.target.result };
+    $('#imgPreviewThumb').src = pendingImage.dataUrl;
+    $('#imgPreviewName').textContent = file.name || 'tangkapan_layar.png';
+    $('#imgPreviewStatus').textContent = `${(file.size / 1024).toFixed(0)} KB - Siap kirim`;
+    $('#imgPreviewBar').hidden = false;
+    $('#bar').classList.add('has');
+    txt.focus();
+  };
+  reader.readAsDataURL(file);
+}
+
+$('#imgPreviewCancel').onclick = () => {
+  pendingImage = null;
+  $('#imgPreviewBar').hidden = true;
+  $('#mediaInput').value = '';
+  $('#bar').classList.toggle('has', !!txt.value.trim());
+};
+
+txt.addEventListener('paste', e => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const it of items) {
+    if (it.type.startsWith('image/')) {
+      const file = it.getAsFile();
+      if (file) {
+        e.preventDefault();
+        handleImageSelection(file);
+        break;
+      }
+    }
+  }
+});
+
+// Drag and Drop File Upload onto Chat Area
+let ddCounter = 0;
+const mwEl = $('#mw');
+const ddOverlay = $('#dragDropOverlay');
+
+function hasFiles(e) {
+  return e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+}
+
+mwEl.addEventListener('dragenter', e => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  ddCounter++;
+  ddOverlay.hidden = false;
+});
+
+mwEl.addEventListener('dragover', e => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+});
+
+mwEl.addEventListener('dragleave', e => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  ddCounter--;
+  if (ddCounter <= 0) {
+    ddCounter = 0;
+    ddOverlay.hidden = true;
+  }
+});
+
+mwEl.addEventListener('drop', e => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  ddCounter = 0;
+  ddOverlay.hidden = true;
+  const files = e.dataTransfer?.files;
+  if (files && files.length > 0) {
+    const file = files[0];
+    if (file.type.startsWith('image/')) {
+      handleImageSelection(file);
+    } else {
+      toast('Format file tidak didukung. Harap pilih gambar.', 'warn');
+    }
+  }
+});
+
+// WebSocket Event Handlers
+const on = {
+  init(d) {
+    name = d.me; LS.name = name;
+    myBio = d.myBio || '';
+    myAvatar = d.myAvatar || '';
+    $('#who').textContent = name;
+    $('#who').title = 'Buka profil Anda';
+    users = new Map(d.users.map(u => [u.name, { ...u, avatar: u.avatar || '', bio: u.bio || '' }]));
+    channels = new Map((d.channels || [{ name: 'general', topic: 'Kanal utama' }]).map(c => [c.name, c]));
+    last = new Map(); unread = {}; approx.clear();
+    if (d.cfg) { cfg = { ...cfg, ...d.cfg }; onlineCount = d.cfg.online || 0; }
+    onlineCount = d.onlineCount ?? onlineCount;
+
+    for (const m of d.last) {
+      const c = cid(m);
+      last.set(c, m);
+      if (m.sender !== name && m.id > (lastRead[c] || 0) && c !== cur) {
+        unread[c] = 1; approx.add(c);
+      }
+    }
+    document.body.classList.remove('off');
+    $('#login').hidden = true;
+    title(); renderList(); layout();
+    if (!cur) open('general');
+    else { send({ t: 'hist', chat: cur }); renderHead(); }
+    updateOnline();
+  },
+  channel_created(d) {
+    channels.set(d.channel.name, d.channel);
+    toast(`Kanal baru dibuat: #${d.channel.name}`, 'info');
+    renderList();
+  },
+  presence(d) {
+    const prevU = users.get(d.name) || {};
+    users.set(d.name, { ...prevU, name: d.name, online: d.online, last_seen: d.last_seen, avatar: d.avatar ?? prevU.avatar ?? '', bio: d.bio ?? prevU.bio ?? '' });
+    onlineCount = d.onlineCount ?? onlineCount;
+    renderList(); renderHead(); updateOnline();
+  },
+  user_avatar(d) {
+    const u = users.get(d.name);
+    if (u) u.avatar = d.avatar;
+    if (d.name === name) {
+      myAvatar = d.avatar;
+      updateProfileAvatarUI();
+    }
+    const it = items.get(d.name);
+    if (it?.av) avatar(it.av, d.name);
+    if (cur === d.name) avatar($('#tav'), cur);
+  },
+  avatar_saved(d) {
+    myAvatar = d.avatar;
+    const myU = users.get(name);
+    if (myU) myU.avatar = d.avatar;
+    updateProfileAvatarUI();
+    const it = items.get(name);
+    if (it?.av) avatar(it.av, name);
+    if (cur === name) avatar($('#tav'), cur);
+    toast(d.avatar ? 'Foto profil berhasil diperbarui' : 'Foto profil berhasil dihapus', 'success');
+  },
+  user_bio(d) {
+    const u = users.get(d.name);
+    if (u) u.bio = d.bio;
+    if (d.name === name) {
+      myBio = d.bio;
+    }
+    renderList(); renderHead();
+  },
+  bio_saved(d) {
+    myBio = d.bio;
+    const st = $('#profBioStatus');
+    if (st) { st.className = 'msg-status ok'; st.textContent = 'Bio tersimpan'; }
+    toast('Bio berhasil disimpan', 'success');
+  },
+  change_pw_ok(d) {
+    token = d.token; localStorage.token = d.token;
+    $('#profNewPw').value = ''; $('#profConfPw').value = '';
+    const st = $('#profPwStatus');
+    st.className = 'msg-status ok';
+    st.textContent = 'Password akun berhasil diperbarui!';
+    toast('Password akun berhasil diperbarui', 'success');
+  },
+  change_pw_err(d) {
+    const st = $('#profPwStatus');
+    st.className = 'msg-status';
+    st.textContent = d.text || 'Gagal mengubah password';
+    toast(d.text || 'Gagal mengubah password', 'error');
+  },
+  online_count(d) {
+    onlineCount = d.count;
+    updateOnline(); renderHead();
+  },
+  msg({ m }) {
+    const c = cid(m), arr = msgs.get(c), mine = (m.sender || '').toLowerCase() === (name || '').toLowerCase();
+    last.set(c, m);
+    delete typ[c];
+    if (arr) {
+      if (arr.some(x => x.id === m.id)) return;
+      arr.push(m);
+    }
+    if (c === cur) {
+      const near = dist() < 150;
+      addMsg(m, $('#msgs'), true);
+      if (near || mine) toBottom(true);
+      else { miss++; fab(); }
+      if (document.hidden && !mine) { unread[c] = (unread[c] || 0) + 1; notify(m, c); }
+      else markRead(c);
+    } else if (!mine) {
+      unread[c] = (unread[c] || 0) + 1;
+      approx.delete(c);
+      notify(m, c);
+    }
+    title(); renderList(); renderHead();
+  },
+  hist(d) {
+    msgs.set(d.chat, d.msgs);
+    if (d.chat === cur) renderMsgs();
+  },
+
+  msg_deleted(d) {
+    const c = cid({ chat: d.chat, sender: '' });
+    const arr = msgs.get(c);
+    if (arr) {
+      const idx = arr.findIndex(x => x.id === d.id);
+      if (idx !== -1) arr.splice(idx, 1);
+    }
+    if (last.get(c)?.id === d.id) {
+      if (arr && arr.length) last.set(c, arr[arr.length - 1]);
+      else last.delete(c);
+    }
+    if (replyingTo && replyingTo.id === d.id) {
+      cancelReply();
+    }
+    const wrap = $(`#msgs [data-id="${d.id}"]`);
+    if (wrap) {
+      wrap.classList.add('fadeout');
+      setTimeout(() => {
+        wrap.remove();
+        const box = $('#msgs');
+        if (box && !box.querySelector('.m-wrap') && !box.querySelector('.hint')) {
+          box.append(h('div', 'hint', 'Belum ada pesan di sini.'));
+        }
+      }, 250);
+    }
+    renderList();
+  },
+  typing(d) {
+    typ[d.chat] = d.from;
+    clearTimeout(typT[d.chat]);
+    typT[d.chat] = setTimeout(() => {
+      delete typ[d.chat];
+      renderList(); renderHead();
+    }, 3000);
+    renderList(); renderHead();
+  },
+  purge(d) {
+    const hit = new Set();
+    for (const [c, arr] of msgs) {
+      const n = arr.filter(m => m.ts >= d.cutoff);
+      if (n.length === arr.length) continue;
+      msgs.set(c, n); hit.add(c);
+      const lm = last.get(c);
+      if (lm && lm.ts < d.cutoff) {
+        if (n.length) last.set(c, n[n.length - 1]);
+        else { last.delete(c); unread[c] = 0; approx.delete(c); }
+      }
+    }
+    for (const [c, m] of last) {
+      if (m && m.ts < d.cutoff) { last.delete(c); unread[c] = 0; approx.delete(c); hit.add(c); }
+    }
+    if (hit.has(cur)) {
+      const box = $('#msgs');
+      box.querySelectorAll('.m-wrap').forEach(x => {
+        x.classList.add('fadeout');
+        setTimeout(() => x.remove(), 230);
+      });
+      setTimeout(() => renderMsgs(), 250);
+    }
+    title(); renderList(); renderHead();
+  },
+  reset() {
+    msgs = new Map(); last = new Map(); unread = {}; approx.clear(); typ = {};
+    items.forEach(o => o.el.remove()); items.clear();
+    chanItems.forEach(o => o.el.remove()); chanItems.clear();
+    if (cur) { msgs.set(cur, []); renderMsgs(); }
+    title(); renderList(); renderHead();
+  },
+  cfg_update(d) {
+    if (d.cfg) cfg = { ...cfg, ...d.cfg };
+    $('#aret').textContent = cfg.retentionMin + ' menit';
+  },
+  ban(d) {
+    if (d.name === name) {
+      toast('Akun Anda telah diblokir', 'error', { duration: 8000 });
+      setTimeout(() => location.reload(), 800);
+    }
+  },
+  unban() {},
+  err(d) {
+    if (name && $('#login').hidden) {
+      toast(d.text || 'Terjadi kesalahan', 'error');
+      return;
+    }
+    $('#login').hidden = false;
+    $('#le').textContent = d.text;
+    const f = $('#lf');
+    f.classList.remove('shake');
+    void f.offsetWidth;
+    f.classList.add('shake');
+    ($('#nm').value ? $('#pw') : $('#nm')).focus();
+  },
+  admin_ok(d) {
+    saveAdmin($('#apw').value, d.exp || Date.now() + cfg.adminTTL);
+    $('#avf').hidden = true;
+    $('#apf').hidden = false;
+    $('#rmin').value = d.ret || cfg.retentionMin;
+    cfg.retentionMin = d.ret || cfg.retentionMin;
+    if (d.cfg) cfg = { ...cfg, ...d.cfg };
+    fillCfg(); fillBans(d.bans || []); fillBots(d.bots || []);
+    for (const p of ['#pe', '#re', '#rx', '#ce', '#be', '#bmsg']) {
+      $(p).textContent = ''; $(p).classList.remove('ok');
+    }
+    $('#npw').value = ''; updateOnline();
+  },
+  admin_err(d) {
+    const p = errBox || $('#ae');
+    p.classList.remove('ok');
+    p.textContent = d.text;
+    toast(d.text || 'Error', 'error');
+  },
+  pw_set() {
+    toast('Password berhasil diperbarui', 'success');
+    $('#pe').classList.add('ok');
+    $('#pe').textContent = 'Password berhasil diperbarui!';
+    $('#npw').value = '';
+  },
+  ret_set(d) {
+    cfg.retentionMin = d.minutes;
+    $('#aret').textContent = d.minutes + ' menit';
+    toast('Durasi disimpan: ' + d.minutes + ' menit', 'success');
+    if (errBox) { errBox.classList.add('ok'); errBox.textContent = 'Durasi disimpan: ' + d.minutes + ' menit'; }
+  },
+  cfg_set_ok(d) {
+    if (d.cfg) cfg = { ...cfg, ...d.cfg };
+    fillCfg();
+    if (errBox) { errBox.classList.add('ok'); errBox.textContent = 'Pengaturan berhasil disimpan'; }
+    toast('Konfigurasi disimpan', 'success');
+  },
+  ban_ok(d) {
+    fillBans(d.bans || []);
+    $('#bname').value = ''; $('#breason').value = '';
+    toast('Pengguna diblokir', 'success');
+    $('#be').classList.add('ok'); $('#be').textContent = 'Pengguna berhasil diblokir';
+  },
+  unban_ok(d) {
+    fillBans(d.bans || []);
+    toast('Blokir dicabut', 'success');
+    $('#be').classList.add('ok'); $('#be').textContent = 'Blokir pengguna dicabut';
+  },
+  reset_ok() {
+    toast('Semua riwayat chat berhasil direset', 'success');
+    $('#rx').classList.add('ok'); $('#rx').textContent = 'Semua chat berhasil direset!';
+  },
+  export_all(d) {
+    if (d.data) dl(`echidna-chat-export-all-${new Date().toISOString().replace(/[:.]/g, '-')}.json`, JSON.stringify(d.data, null, 2));
+  },
+  export_chat(d) {
+    if (d.data) dl(`echidna-chat-${String(d.chat).replace(/\|/g, '_')}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`, JSON.stringify(d.data, null, 2));
+  },
+  bot_list(d) {
+    fillBots(d.bots || []);
+    $('#bmsg').textContent = '';
+  },
+};
+
+function updateOnline() {
+  const c = onlineCount || 0;
+  const sonline = $('#sonline');
+  if (sonline) {
+    sonline.className = 'status-pill' + (c > 0 ? '' : ' is-zero');
+    sonline.innerHTML = `<span class="status-dot"></span><span class="status-txt">${c} online</span>`;
+    sonline.title = `${c} pengguna terhubung di jaringan lokal`;
+  }
+  const aonline = $('#aonline');
+  if (aonline) {
+    aonline.textContent = c > 0 ? `${c} online` : '0 online';
+  }
+}
+
+function fillCfg() {
+  $('#c_spamMax').value = cfg.spamMax;
+  $('#c_spamWin').value = cfg.spamWin;
+  $('#c_typ').value = cfg.typingThrottle;
+  $('#c_admttl').value = cfg.adminTTL;
+  $('#aret').textContent = cfg.retentionMin + ' menit';
+}
+
+function fillBans(b) {
+  const l = $('#blist'); l.innerHTML = '';
+  (b || []).forEach(x => {
+    const it = h('div', 'bitem', null,
+      h('div', null, x.name, h('div', 'bmeta', (x.reason ? x.reason + ' · ' : '') + new Date(x.ts).toLocaleString()))
+    );
+    const ub = h('button', 'btn ghost', 'Unban');
+    ub.style.padding = '4px 10px';
+    ub.onclick = () => {
+      const p = isAdminValid() ? adminPw : ($('#apw').value || '');
+      if (!p) return;
+      errBox = $('#be'); $('#be').textContent = '';
+      send({ t: 'admin_unban', pw: p, name: x.name });
+    };
+    it.append(ub);
+    l.append(it);
+  });
+}
+
+function connect() {
+  clearTimeout(ct);
+  const sock = ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws');
+  sock.onopen = () => { if (name) send({ t: 'join', name, token, pw }); };
+  sock.onmessage = e => { try { const d = JSON.parse(e.data); on[d.t]?.(d); } catch {} };
+  sock.onclose = () => {
+    if (ws !== sock) return;
+    typ = {};
+    document.body.classList.add('off');
+    ct = setTimeout(connect, 1500);
+  };
+}
+
+$('#login').hidden = !!name;
+if (!name) $('#nm').focus();
+$('#lf').onsubmit = e => {
+  e.preventDefault();
+  name = $('#nm').value.trim();
+  pw = $('#pw').value;
+  LS.pw = pw;
+  $('#le').textContent = '';
+  send({ t: 'join', name, token, pw });
+};
+
+// Admin Modal Tab Navigation
+$$('.atab').forEach(b => {
+  b.onclick = () => {
+    $$('.atab').forEach(x => x.classList.remove('active'));
+    $$('.tab-pane').forEach(x => x.hidden = true);
+    b.classList.add('active');
+    const target = $(`#${b.dataset.tab}`);
+    if (target) target.hidden = false;
+  };
+});
+
+// Admin Panel Actions
+{
+  const adm = $('#adm'), avf = $('#avf'), apf = $('#apf');
+  const err = el => { el.classList.remove('ok'); el.textContent = ''; };
+  const openAdmin = () => {
+    avf.hidden = false; apf.hidden = false;
+    if (isAdminValid()) {
+      avf.hidden = true;
+      $('#apw').value = adminPw;
+      send({ t: 'admin_verify', pw: adminPw });
+    } else {
+      apf.hidden = true;
+      $('#apw').value = '';
+      $('#apw').focus();
+    }
+    for (const p of ['#ae', '#pe', '#re', '#rx', '#ce', '#be']) err($(p));
+    adm.hidden = false;
+  };
+
+  let clicks = 0, clickT = null;
+  $('#lt').onclick = () => {
+    clicks++; clearTimeout(clickT);
+    clickT = setTimeout(() => clicks = 0, 1500);
+    if (clicks < 8) return;
+    clicks = 0; openAdmin();
+  };
+  $('#ht').onclick = () => openAdmin();
+  $('#madmin').onclick = () => { closeMenu(); openAdmin(); };
+  $('#aclose').onclick = () => { adm.hidden = true; clearAdmin(); };
+  adm.addEventListener('click', e => { if (e.target === adm) { adm.hidden = true; clearAdmin(); } });
+
+  avf.onsubmit = e => {
+    e.preventDefault();
+    errBox = $('#ae'); err(errBox);
+    const p = $('#apw').value;
+    send({ t: 'admin_verify', pw: p });
+  };
+  $('#rsave').onclick = () => {
+    errBox = $('#re'); err(errBox);
+    const p = isAdminValid() ? adminPw : $('#apw').value;
+    if (!p) return;
+    send({ t: 'admin_setret', pw: p, minutes: $('#rmin').value });
+  };
+  $('#csave').onclick = () => {
+    errBox = $('#ce'); err(errBox);
+    const p = isAdminValid() ? adminPw : $('#apw').value;
+    if (!p) return;
+    send({ t: 'admin_setcfg', pw: p, spamMax: $('#c_spamMax').value, spamWin: $('#c_spamWin').value, typingThrottle: $('#c_typ').value, adminTTL: $('#c_admttl').value });
+  };
+  $('#bban').onclick = () => {
+    errBox = $('#be'); err(errBox);
+    const p = isAdminValid() ? adminPw : $('#apw').value;
+    if (!p) return;
+    send({ t: 'admin_ban', pw: p, name: $('#bname').value, reason: $('#breason').value });
+  };
+  $('#rall').onclick = () => {
+    errBox = $('#rx'); err(errBox);
+    const p = isAdminValid() ? adminPw : $('#apw').value;
+    if (!p) return;
+    openConfirm({
+      title: 'Hapus Semua Chat?',
+      message: 'Seluruh pesan dan riwayat percakapan akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.',
+      okText: 'Hapus Semua',
+      onOk: () => send({ t: 'admin_reset', pw: p })
+    });
+  };
+  $('#psave').onclick = () => {
+    errBox = $('#pe'); err(errBox);
+    const p = isAdminValid() ? adminPw : $('#apw').value;
+    if (!p) return;
+    send({ t: 'admin_setpw', pw: p, new: $('#npw').value });
+  };
+  $('#exjson').onclick = () => {
+    const p = isAdminValid() ? adminPw : $('#apw').value;
+    if (!p) return;
+    send({ t: 'admin_export_chat', pw: p, chat: $('#exchat').value || 'general' });
+  };
+  $('#extxt').onclick = () => {
+    const p = isAdminValid() ? adminPw : $('#apw').value;
+    if (!p) return;
+    const c = encodeURIComponent($('#exchat').value || 'general');
+    location.href = `/export/chat.txt?pw=${encodeURIComponent(p)}&chat=${c}`;
+  };
+  $('#exall').onclick = () => {
+    const p = isAdminValid() ? adminPw : $('#apw').value;
+    if (!p) return;
+    buzz(HAPTIC.tap);
+    location.href = `/export/all?pw=${encodeURIComponent(p)}`;
+  };
+  $('#mexpall').onclick = () => {
+    buzz(HAPTIC.tap);
+    closeMenu();
+    if (isAdminValid()) {
+      location.href = `/export/all?pw=${encodeURIComponent(adminPw)}`;
+      return;
+    }
+    openConfirm({
+      title: 'Export Semua Chat',
+      message: 'Masukkan password admin untuk mengunduh seluruh riwayat chat sebagai JSON.',
+      okText: 'Export',
+      okClass: '',
+      danger: false,
+      input: { type: 'password', placeholder: 'Password admin' },
+      onOk: p => { if (p) location.href = `/export/all?pw=${encodeURIComponent(p)}`; }
+    });
+  };
+}
+
+// Bot Day Picker Chips
+$$('#dayPicker .dp-chip').forEach(btn => {
+  btn.onclick = () => {
+    const day = btn.dataset.day;
+    if (day === '*') {
+      $$('#dayPicker .dp-chip').forEach(x => x.classList.remove('on'));
+      btn.classList.add('on');
+      $('#bdays').value = '*';
+    } else {
+      $('#dayPicker .dp-chip[data-day="*"]').classList.remove('on');
+      btn.classList.toggle('on');
+      const selected = [...$$('#dayPicker .dp-chip.on')].map(x => x.dataset.day).filter(x => x !== '*');
+      if (!selected.length) {
+        $('#dayPicker .dp-chip[data-day="*"]').classList.add('on');
+        $('#bdays').value = '*';
+      } else {
+        $('#bdays').value = selected.join(',');
+      }
+    }
+  };
+});
+
+function syncDayPicker(daysStr) {
+  $$('#dayPicker .dp-chip').forEach(x => x.classList.remove('on'));
+  if (!daysStr || daysStr === '*' || daysStr === 'all') {
+    $('#dayPicker .dp-chip[data-day="*"]').classList.add('on');
+    $('#bdays').value = '*';
+  } else {
+    const parts = daysStr.split(',').map(x => x.trim().toLowerCase());
+    parts.forEach(p => {
+      const chip = $(`#dayPicker .dp-chip[data-day="${p}"]`);
+      if (chip) chip.classList.add('on');
+    });
+    $('#bdays').value = daysStr;
+  }
+}
+
+function fillBots(b) {
+  const l = $('#botlist'); l.innerHTML = '';
+  (b || []).forEach(x => {
+    const it = h('div', 'bitem', null,
+      h('div', null,
+        h('strong', null, x.name),
+        h('div', 'bmeta', `[${String(x.hour).padStart(2, '0')}:${String(x.minute).padStart(2, '0')}] hari:${x.days || '*'} chat:${x.chat || 'general'} ${x.enabled ? 'AKTIF' : 'MATI'}`)
+      )
+    );
+    const grp = h('div', 'hgrp');
+    const a = h('button', 'btn ghost', 'Edit');
+    a.style.padding = '4px 10px';
+    a.onclick = () => editBot(x);
+    const d = h('button', 'btn danger', 'Hapus');
+    d.style.padding = '4px 10px';
+    d.onclick = () => {
+      const p = isAdminValid() ? adminPw : $('#apw').value;
+      if (!p) return;
+      send({ t: 'admin_bot_del', pw: p, id: x.id });
+    };
+    grp.append(a, d);
+    it.append(grp);
+    l.append(it);
+  });
+}
+
+let editingBot = null;
+function editBot(x) {
+  editingBot = x;
+  $('#bname_bot').value = x.name;
+  $('#benabled').value = x.enabled ? '1' : '0';
+  $('#bhour').value = x.hour;
+  $('#bminute').value = x.minute;
+  syncDayPicker(x.days || '*');
+  $('#bchat').value = x.chat || 'general';
+  $('#btext').value = x.text || '';
+  $('#bpos').value = x.pos || 0;
+  $('#bsave').disabled = false; $('#bcancel').hidden = false; $('#badd').disabled = true;
+}
+$('#badd').onclick = () => {
+  const p = isAdminValid() ? adminPw : $('#apw').value;
+  if (!p) return;
+  send({
+    t: 'admin_bot_add', pw: p,
+    name: $('#bname_bot').value, enabled: +$('#benabled').value,
+    hour: +$('#bhour').value, minute: +$('#bminute').value,
+    days: $('#bdays').value || '*', chat: $('#bchat').value || 'general',
+    text: $('#btext').value, pos: +$('#bpos').value
+  });
+};
+$('#bsave').onclick = () => {
+  if (!editingBot) return;
+  const p = isAdminValid() ? adminPw : $('#apw').value;
+  if (!p) return;
+  send({
+    t: 'admin_bot_upd', pw: p, id: editingBot.id,
+    name: $('#bname_bot').value, enabled: +$('#benabled').value,
+    hour: +$('#bhour').value, minute: +$('#bminute').value,
+    days: $('#bdays').value || '*', chat: $('#bchat').value || 'general',
+    text: $('#btext').value, pos: +$('#bpos').value
+  });
+  editingBot = null;
+  $('#bsave').disabled = true; $('#bcancel').hidden = true; $('#badd').disabled = false;
+};
+$('#bcancel').onclick = () => {
+  editingBot = null;
+  $('#bsave').disabled = true; $('#bcancel').hidden = true; $('#badd').disabled = false;
+};
+
+// Device PIN Linking View
+$('#mdev').onclick = () => {
+  closeMenu(); $('#devm').hidden = false;
+  $('#dname').value = name || '';
+  $('#dout').textContent = ''; $('#derr').textContent = ''; $('#dcode').value = '';
+};
+$('#dclose').onclick = () => { $('#devm').hidden = true; };
+$('#dgen').onclick = async () => {
+  const nm = $('#dname').value.trim();
+  if (!nm) return;
+  buzz(HAPTIC.tap);
+  try {
+    const r = await fetch('/api/device/pin', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: nm, token: localStorage.token })
+    });
+    const d = await r.json();
+    if (d.ok) $('#dout').textContent = 'Kode: ' + d.code + ' (berlaku 10 menit)';
+    else $('#dout').textContent = 'Gagal membuat kode';
+  } catch { $('#dout').textContent = 'Koneksi error'; }
+};
+$('#dver').onclick = async () => {
+  const c = $('#dcode').value.trim();
+  if (!c) { $('#derr').textContent = 'Masukkan 6 digit kode'; return; }
+  buzz(HAPTIC.tap);
+  try {
+    const r = await fetch('/api/device/verify', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ code: c })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      localStorage.name = d.name; localStorage.token = d.token; localStorage.pw = localStorage.pw || 'anjir445566';
       location.reload();
-    }else $('#derr').textContent='Kode tidak valid atau kadaluarsa';
-  }catch{$('#derr').textContent='Error';}
+    } else $('#derr').textContent = 'Kode tidak valid atau telah kadaluarsa';
+  } catch { $('#derr').textContent = 'Koneksi error'; }
 };
-$('#lcodebtn').onclick=()=>{$('#lf').hidden=true;$('#lcf').hidden=false;$('#lce').textContent='';$('#lcode').value='';$('#lcode').focus();};
-$('#lcback').onclick=()=>{$('#lf').hidden=false;$('#lcf').hidden=true;$('#le').textContent='';};
-$('#lcodego').onclick=async()=>{
-  const c=$('#lcode').value.trim();
-  if(!c){$('#lce').textContent='Masukkan kode';return;}
-  try{
-    const r=await fetch('/api/device/verify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code:c})});
-    const d=await r.json();
-    if(d.ok){
-      localStorage.name=d.name;localStorage.token=d.token;localStorage.pw=localStorage.pw||'anjir445566';
+
+// Profile Tab Logic
+function refreshProfile() {
+  $('#profName').textContent = '@' + name;
+  updateProfileAvatarUI();
+  $('#profBio').value = myBio || '';
+  $('#profBioStatus').textContent = '';
+  $('#profBioStatus').classList.remove('ok');
+  $('#profNewPw').value = '';
+  $('#profConfPw').value = '';
+  $('#profPwStatus').textContent = '';
+  $('#profPwStatus').classList.remove('ok');
+}
+
+function updateProfileAvatarUI() {
+  avatar($('#profAv'), name);
+  const rmBtn = $('#profRemovePhotoBtn');
+  if (rmBtn) rmBtn.hidden = !myAvatar;
+}
+
+$('#profBioSave').onclick = () => {
+  buzz(HAPTIC.tap);
+  const st = $('#profBioStatus');
+  st.className = 'msg-status';
+  st.textContent = 'Menyimpan...';
+  send({ t: 'set_bio', bio: $('#profBio').value.trim() });
+};
+
+$$('.pw-toggle').forEach((btn) => {
+  btn.onclick = () => {
+    buzz(HAPTIC.tap);
+    const inp = btn.previousElementSibling;
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.classList.toggle('on', show);
+    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+    btn.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+  };
+});
+
+$('#who').onclick = (e) => { e.stopPropagation(); setTab('profile'); };
+
+// Avatar photo upload logic
+function handleAvatarFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    toast('File harus berupa gambar (JPG, PNG, WebP)', 'error');
+    return;
+  }
+  if (file.size > 3 * 1024 * 1024) {
+    toast('Ukuran gambar maksimal 3MB', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      toast('Mengunggah foto profil...', 'info');
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name, token, data: reader.result })
+      });
+      const data = await res.json();
+      if (data.ok && data.url) {
+        send({ t: 'set_avatar', avatar: data.url });
+      } else {
+        toast(data.error || 'Gagal mengunggah foto', 'error');
+      }
+    } catch {
+      toast('Gagal mengunggah foto profil', 'error');
+    }
+  };
+  reader.onerror = () => toast('Gagal membaca file gambar', 'error');
+  reader.readAsDataURL(file);
+}
+
+const avWrap = $('#profAvWrap');
+if (avWrap) {
+  avWrap.onclick = (e) => {
+    if (e.target.closest('#profRemovePhotoBtn')) return;
+    $('#profAvatarInput').click();
+  };
+  avWrap.ondragover = (e) => { e.preventDefault(); avWrap.style.transform = 'scale(1.05)'; };
+  avWrap.ondragleave = () => { avWrap.style.transform = ''; };
+  avWrap.ondrop = (e) => {
+    e.preventDefault();
+    avWrap.style.transform = '';
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleAvatarFile(file);
+  };
+}
+
+const avChangeBtn = $('#profChangePhotoBtn');
+if (avChangeBtn) avChangeBtn.onclick = (e) => {
+  e.stopPropagation();
+  $('#profAvatarInput').click();
+};
+
+const avInput = $('#profAvatarInput');
+if (avInput) avInput.onchange = (e) => {
+  const file = e.target.files?.[0];
+  if (file) handleAvatarFile(file);
+  e.target.value = '';
+};
+
+const avRemoveBtn = $('#profRemovePhotoBtn');
+if (avRemoveBtn) avRemoveBtn.onclick = (e) => {
+  e.stopPropagation();
+  send({ t: 'set_avatar', avatar: '' });
+};
+
+$('#profChangePwBtn').onclick = () => {
+  buzz(HAPTIC.tap);
+  const p1 = $('#profNewPw').value.trim();
+  const p2 = $('#profConfPw').value.trim();
+  const st = $('#profPwStatus');
+  if (!p1 || p1.length < 6) {
+    st.className = 'msg-status';
+    st.textContent = 'Password baru minimal 6 karakter';
+    return;
+  }
+  if (p1 !== p2) {
+    st.className = 'msg-status';
+    st.textContent = 'Konfirmasi password tidak cocok';
+    return;
+  }
+  send({ t: 'change_pw', new_pw: p1 });
+};
+
+$('#lcodebtn').onclick = () => {
+  $('#lf').hidden = true; $('#lcf').hidden = false;
+  $('#lce').textContent = ''; $('#lcode').value = ''; $('#lcode').focus();
+};
+$('#lcback').onclick = () => {
+  $('#lf').hidden = false; $('#lcf').hidden = true; $('#le').textContent = '';
+};
+$('#lcodego').onclick = async () => {
+  const c = $('#lcode').value.trim();
+  if (!c) { $('#lce').textContent = 'Masukkan 6 digit kode'; return; }
+  try {
+    const r = await fetch('/api/device/verify', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ code: c })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      localStorage.name = d.name; localStorage.token = d.token; localStorage.pw = localStorage.pw || 'anjir445566';
       location.reload();
-    }else $('#lce').textContent='Kode tidak valid atau kadaluarsa';
-  }catch{$('#lce').textContent='Error';}
+    } else $('#lce').textContent = 'Kode tidak valid atau telah kadaluarsa';
+  } catch { $('#lce').textContent = 'Koneksi error'; }
 };
-$('#lcf').onsubmit=e=>{e.preventDefault();$('#lcodego').click();};
-layout();fillCfg();updateOnline();connect();
+$('#lcf').onsubmit = e => { e.preventDefault(); $('#lcodego').click(); };
+
+// Message Submit
+const bar = $('#bar');
+async function submit() {
+  const v = txt.value.trim();
+  if ((!v && !pendingImage) || !cur) return;
+
+  let mediaUrl = null;
+  if (pendingImage) {
+    try {
+      $('#imgPreviewStatus').textContent = 'Mengunggah...';
+      const r = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name, token, data: pendingImage.dataUrl })
+      });
+      const res = await r.json();
+      if (res.ok) {
+        mediaUrl = res.url;
+      } else {
+        toast('Gagal upload gambar: ' + (res.error || ''), 'error');
+        $('#imgPreviewStatus').textContent = 'Gagal upload';
+        return;
+      }
+    } catch {
+      toast('Koneksi terputus saat upload gambar', 'error');
+      return;
+    }
+    pendingImage = null;
+    $('#imgPreviewBar').hidden = true;
+    $('#mediaInput').value = '';
+  }
+
+  const payload = {
+    t: 'msg',
+    to: cur,
+    text: v,
+    replyTo: replyingTo ? replyingTo.id : null,
+    media: mediaUrl
+  };
+  send(payload);
+  buzz(HAPTIC.tap);
+
+  txt.value = '';
+  txt.style.height = 'auto';
+  bar.classList.remove('has');
+  if (replyingTo) {
+    replyingTo = null;
+    $('#replyBar').hidden = true;
+  }
+  txt.focus();
+}
+
+txt.oninput = () => {
+  txt.style.height = 'auto';
+  txt.style.height = Math.min(txt.scrollHeight, 140) + 'px';
+  bar.classList.toggle('has', !!txt.value.trim() || !!pendingImage);
+  if (cur && Date.now() - tsent > (cfg.typingThrottle || 1500)) {
+    tsent = Date.now();
+    send({ t: 'typing', to: cur });
+  }
+};
+txt.onkeydown = e => {
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !matchMedia('(pointer:coarse)').matches) {
+    e.preventDefault();
+    submit();
+  }
+};
+bar.onsubmit = e => { e.preventDefault(); submit(); };
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  if (ws && ws.readyState > 1) connect();
+  if (cur) { unread[cur] = 0; markRead(cur); title(); renderList(); }
+});
+addEventListener('online', () => { if (ws && ws.readyState > 1) connect(); });
+$('#lo').onclick = () => {
+  buzz(HAPTIC.tap);
+  delete LS.name; delete LS.pw; delete LS.lastRead; location.reload();
+};
+
+setTab('chat'); fillCfg(); updateOnline(); connect();
 </script>
-  <div id="sonner-toaster" data-theme="light" style="z-index:9999"></div>
-  <script src="https://cdn.jsdelivr.net/npm/sonner@2.0.7/dist/index.umd.js"></script>
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>

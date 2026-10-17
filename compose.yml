@@ -7,6 +7,11 @@ services:
       - "8101:3000"
     volumes:
       - chat-data:/data
+      - ./server.js:/app/server.js:ro
+      - ./index.html:/app/index.html:ro
+      - ./sw.js:/app/sw.js:ro
+      - ./manifest.json:/app/manifest.json:ro
+      - ./icon.svg:/app/icon.svg:ro
     mem_limit: 128m
 volumes:
   chat-data:
