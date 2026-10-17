@@ -1,0 +1,12 @@
+services:
+  chat:
+    build: .
+    container_name: chat-local
+    restart: unless-stopped
+    ports:
+      - "8101:3000"
+    volumes:
+      - chat-data:/data
+    mem_limit: 128m
+volumes:
+  chat-data:
